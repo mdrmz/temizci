@@ -67,16 +67,11 @@ Run-SSH $permCmds
 # ——— ADIM 5: Veritabani kurulumu ———
 Write-Host "[5/5] Veritabani kuruluyor..." -ForegroundColor Green
 $dbCmds = @"
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS temizlik_burda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 sudo mysql -e "CREATE USER IF NOT EXISTS 'temizci'@'localhost' IDENTIFIED BY '123456';"
 sudo mysql -e "GRANT ALL PRIVILEGES ON temizlik_burda.* TO 'temizci'@'localhost';"
 sudo mysql -e "FLUSH PRIVILEGES;"
-echo '--- Schema import ---'
-sudo mysql temizlik_burda < $REMOTE_DIR/database/schema.sql
-echo '--- Seed data ---'
-sudo mysql temizlik_burda < $REMOTE_DIR/database/seed.sql
-test -f $REMOTE_DIR/database/favorites_migration.sql && sudo mysql temizlik_burda < $REMOTE_DIR/database/favorites_migration.sql
-test -f $REMOTE_DIR/database/professional_upgrade.sql && sudo mysql temizlik_burda < $REMOTE_DIR/database/professional_upgrade.sql
+echo '--- Full Database Reset (Kapsamli Kurulum) ---'
+sudo mysql < $REMOTE_DIR/database/database_full.sql
 echo '--- Veritabani tamamlandi ---'
 "@
 Run-SSH $dbCmds
