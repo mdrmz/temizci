@@ -1,0 +1,100 @@
+Options -Indexes
+ServerSignature Off
+
+# ============================================================
+# HTTPS Yönlendirme (Localde YORUMA ALINDI)
+# Hosting'de SSL sertifikanız varsa bu bloğu etkinleştirin
+# ============================================================
+# ============================================================
+# HTTPS Yönlendirme (Localde YORUMA ALINDI)
+# Hosting'de SSL sertifikanız varsa bu bloğu etkinleştirin
+# ============================================================
+RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ============================================================
+# PHP Uzantılarını Gizleme (Pretty URLs)
+# ============================================================
+# Harici yönlendirme: .php ile yapılan istekleri .php'siz hale 301 yönlendir
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+# includes, database gibi özel klasörleri atla
+RewriteCond %{REQUEST_URI} !^/(includes|database|assets|uploads)/ [NC]
+RewriteRule ^ %1 [R=301,L,NE]
+
+# Dahili yönlendirme: .php'siz isteklere arka planda .php ekle
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*?)/?$ $1.php [L]
+
+
+# ============================================================
+# Güvenlik Başlıkları
+# ============================================================
+<IfModule mod_headers.c>
+    # Clickjacking koruması
+    Header always set X-Frame-Options "SAMEORIGIN"
+    # XSS koruması (eski tarayıcılar için)
+    Header always set X-XSS-Protection "1; mode=block"
+    # MIME sniffing koruması
+    Header always set X-Content-Type-Options "nosniff"
+    # Referrer gizliliği
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # HTTPS zorlama (HSTS) — Lokal geliştirmede kapalı
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # PHP versiyonunu gizle
+    Header unset X-Powered-By
+</IfModule>
+
+# ============================================================
+# Gzip Sıkıştırma (sayfa hızı)
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+    AddOutputFilterByType DEFLATE text/javascript application/javascript application/json
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ============================================================
+# Tarayıcı Cache (statik dosyalar)
+# ============================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+# ============================================================
+# Dizin & Dosya Erişim Koruması
+# ============================================================
+DirectoryIndex index.php
+
+# Hassas dosyalara doğrudan erişimi kapat
+RewriteRule ^includes/.*$ - [F,L]
+RewriteRule ^database/.*$ - [F,L]
+RewriteRule ^logs/.*$ - [F,L]
+RewriteRule ^\.env$ - [F,L]
+
+# Ön yüklemeler (assets, uploads vb için bypass)
+RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|webp|ico|svg|woff|woff2|ttf)$ [NC]
+RewriteRule ^ - [L]
+
+# ============================================================
+# Tehlikeli Dosya Yükleme Koruması (uploads klasörü)
+# ============================================================
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    <If "%{REQUEST_URI} =~ m#^/uploads/#">
+        Require all denied
+    </If>
+</FilesMatch>
+

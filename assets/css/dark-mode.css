@@ -1,0 +1,106 @@
+/* ============================================================
+   Dark Mode Toggles & Variables
+   ============================================================ */
+
+/*
+   We override the CSS Custom Properties when [data-theme="dark"] is applied to the html tag
+*/
+html[data-theme="dark"] {
+    /* Backgrounds */
+    --bg: #0B1120;
+    --bg-white: #1E293B;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    
+    /* Text Colors */
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #64748B;
+    
+    /* Borders */
+    --border: #334155;
+    --border-light: #1E293B;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+    --shadow: 0 10px 25px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.3);
+    --shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.6);
+
+    /* Form Inputs */
+    --form-bg: #0F172A;
+}
+
+/* Specific Dark Mode Overrides */
+html[data-theme="dark"] .form-control {
+    background: var(--bg-white);
+    color: var(--text-primary);
+}
+html[data-theme="dark"] .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+html[data-theme="dark"] .app-header {
+    background: rgba(11, 17, 32, 0.85);
+}
+html[data-theme="dark"] .navbar {
+    background: rgba(11, 17, 32, 0.85);
+}
+html[data-theme="dark"] .chat-container {
+    background: var(--bg-white);
+    border-color: var(--border);
+}
+html[data-theme="dark"] .chat-sidebar {
+    background: var(--bg);
+}
+html[data-theme="dark"] .chat-area {
+    background: var(--bg);
+}
+html[data-theme="dark"] .chat-header {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .chat-input {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .message-received {
+    background: var(--bg-white);
+    border-color: var(--border);
+}
+html[data-theme="dark"] .contact-item:hover, 
+html[data-theme="dark"] .contact-item.active {
+    background: rgba(255,255,255,0.05);
+}
+html[data-theme="dark"] .stat-card {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .table th {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .badge-default {
+    background: var(--border);
+    color: var(--text-secondary);
+}
+
+/* Theme Toggle Button Specifics */
+.theme-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1.1rem;
+}
+.theme-toggle-btn:hover {
+    background: var(--border-light);
+    color: var(--text-primary);
+}
+html[data-theme="dark"] .theme-toggle-btn {
+    border-color: var(--text-muted);
+}
+html[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.1);
+}

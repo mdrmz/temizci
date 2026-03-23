@@ -1,0 +1,18 @@
+# Hassas dosyalar
+.env
+logs/
+
+# Yüklenen dosyalar (büyük boyut, git'e girmemeli)
+uploads/homes/*
+uploads/avatars/*
+!uploads/homes/.gitkeep
+!uploads/avatars/.gitkeep
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
