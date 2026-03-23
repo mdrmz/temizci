@@ -6,7 +6,7 @@
 $SERVER     = "192.168.1.51"
 $USER       = "piksel"
 $LOCAL_DIR  = "c:\xampp\htdocs\dashboard\temizci"
-$REMOTE_DIR = "/var/www/temizciburada"
+$REMOTE_DIR = "/var/www/temizci"
 
 # SSH config'de cloudflared ProxyCommand var ama LAN icin gerekli degil
 # -o ProxyCommand=none ile bypass edelim
