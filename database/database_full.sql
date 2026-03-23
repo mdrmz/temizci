@@ -1,8 +1,10 @@
 -- ============================================================
 -- Temizci Burada — Kapsamlı Veritabanı Kurulum Dosyası (Full Setup)
 -- Bu dosya tüm şema, tablo ve test verilerini içerir.
+-- NOT: Mevcut veritabanını SİLİP (reset) baştan kurar.
 -- ============================================================
 
+DROP DATABASE IF EXISTS temizlik_burda;
 CREATE DATABASE IF NOT EXISTS temizlik_burda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE temizlik_burda;
 
