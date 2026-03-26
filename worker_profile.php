@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -52,6 +52,22 @@ $availStmt = $db->prepare("SELECT available_date, time_slot FROM availability WH
 $availStmt->execute([$id]);
 $availability = $availStmt->fetchAll();
 
+$db->exec("
+    CREATE TABLE IF NOT EXISTS worker_service_packages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        worker_id INT NOT NULL,
+        title VARCHAR(120) NOT NULL,
+        description VARCHAR(400) NULL,
+        base_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        is_active TINYINT(1) NOT NULL DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_worker_pkg_worker (worker_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+");
+$pkgStmt = $db->prepare("SELECT * FROM worker_service_packages WHERE worker_id = ? AND is_active = 1 ORDER BY base_price ASC");
+$pkgStmt->execute([$id]);
+$packages = $pkgStmt->fetchAll();
+
 $isLoggedIn = isLoggedIn();
 $user = $isLoggedIn ? currentUser() : null;
 $initials = strtoupper(substr($worker['name'], 0, 1));
@@ -59,9 +75,9 @@ $memberSince = date('M Y', strtotime($worker['created_at']));
 
 $timeSlotLabels = [
     'tum_gun' => 'Tüm Gün',
-    'sabah' => '☀️ Sabah',
-    'ogle' => '🌤️ Öğle',
-    'aksam' => '🌙 Akşam',
+    'sabah' => 'â˜€ï¸ Sabah',
+    'ogle' => ' Öğle',
+    'aksam' => ' Akşam',
 ];
 ?>
 <!DOCTYPE html>
@@ -69,9 +85,8 @@ $timeSlotLabels = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($worker['name']) ?> — Hizmet Veren Profili | Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <title><?= e($worker['name']) ?>  -  Hizmet Veren Profili | Temizci Burada</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
     <link rel="apple-touch-icon" href="/logo.png">
@@ -133,18 +148,18 @@ $timeSlotLabels = [
         <div class="profile-name">
             <?= e($worker['name']) ?>
             <?php if ($worker['is_verified']): ?>
-                <span title="Doğrulanmış Profil" style="font-size:1.2rem;">✅</span>
+                <span title="Doğrulanmış Profil" style="font-size:1.2rem;"></span>
             <?php endif; ?>
         </div>
         <div class="profile-meta">
-            <?= $worker['city'] ? '📍 ' . e($worker['city']) . ' · ' : '' ?>
-            🗓️ <?= $memberSince ?>'den beri üye ·
-            <?= $worker['role'] === 'worker' ? '🧹 Hizmet Veren' : '🏠 Ev Sahibi' ?>
+            <?= $worker['city'] ? ' ' . e($worker['city']) . ' · ' : '' ?>
+             <?= $memberSince ?>'den beri üye ·
+            <?= $worker['role'] === 'worker' ? ' Hizmet Veren' : '  Ev Sahibi' ?>
         </div>
         
         <div class="profile-stats">
             <div class="profile-stat">
-                <div class="profile-stat-val"><?= number_format($worker['rating'], 1) ?> ⭐</div>
+                <div class="profile-stat-val"><?= number_format($worker['rating'], 1) ?> â­</div>
                 <div class="profile-stat-lbl">Puan</div>
             </div>
             <div class="profile-stat">
@@ -167,10 +182,33 @@ $timeSlotLabels = [
         <?php if ($worker['bio']): ?>
         <div class="card mb-4">
             <div class="card-header">
-                <div class="card-title">📝 Hakkında</div>
+                <div class="card-title"> Hakkında</div>
             </div>
             <div class="card-body">
                 <p style="color:var(--text-secondary);line-height:1.7;"><?= nl2br(e($worker['bio'])) ?></p>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($packages)): ?>
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"> Hizmet Paketleri</div>
+            </div>
+            <div class="card-body">
+                <?php foreach ($packages as $p): ?>
+                    <div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                            <div>
+                                <div style="font-weight:700;"><?= e($p['title']) ?></div>
+                                <?php if (!empty($p['description'])): ?>
+                                    <div style="font-size:0.82rem;color:var(--text-muted);"><?= e($p['description']) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div style="font-weight:800;color:var(--secondary);white-space:nowrap;"><?= formatMoney((float) $p['base_price']) ?></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
         <?php endif; ?>
@@ -179,14 +217,14 @@ $timeSlotLabels = [
         <?php if (!empty($availability)): ?>
         <div class="card mb-4">
             <div class="card-header">
-                <div class="card-title">📅 Müsait Günler</div>
+                <div class="card-title"> Müsait Günler</div>
             </div>
             <div class="card-body">
                 <div style="display:flex;flex-wrap:wrap;gap:4px;">
                     <?php foreach ($availability as $a): ?>
                         <span class="avail-tag">
-                            📅 <?= date('d M', strtotime($a['available_date'])) ?>
-                            — <?= $timeSlotLabels[$a['time_slot']] ?? $a['time_slot'] ?>
+                             <?= date('d M', strtotime($a['available_date'])) ?>
+                             -  <?= $timeSlotLabels[$a['time_slot']] ?? $a['time_slot'] ?>
                         </span>
                     <?php endforeach; ?>
                 </div>
@@ -198,8 +236,8 @@ $timeSlotLabels = [
         <?php if ($isLoggedIn && $user['id'] != $id): ?>
         <div class="card mb-4">
             <div class="card-body" style="text-align:center;padding:24px;">
-                <a href="<?= APP_URL ?>/messages?uid=<?= $id ?>" class="btn btn-primary btn-lg" style="gap:8px;">
-                    💬 Mesaj Gönder
+                <a href="<?= APP_URL ?>/messages.php?uid=<?= $id ?>" class="btn btn-primary btn-lg" style="gap:8px;">
+                     Mesaj Gönder
                 </a>
             </div>
         </div>
@@ -208,11 +246,11 @@ $timeSlotLabels = [
         <!-- Yorumlar -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">⭐ Değerlendirmeler (<?= count($reviews) ?>)</div>
+                <div class="card-title">â­ Değerlendirmeler (<?= count($reviews) ?>)</div>
             </div>
             <?php if (empty($reviews)): ?>
                 <div class="empty-state" style="padding:40px;">
-                    <div class="empty-state-icon" style="font-size:2.5rem;">⭐</div>
+                    <div class="empty-state-icon" style="font-size:2.5rem;">â­</div>
                     <h3>Henüz değerlendirme yok</h3>
                     <p style="color:var(--text-muted);">Bu kullanıcı henüz değerlendirilmemiş.</p>
                 </div>
@@ -254,7 +292,10 @@ $timeSlotLabels = [
         <?php include 'includes/footer.php'; ?>
     <?php endif; ?>
 
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
 </body>
 </html>
+
+
+

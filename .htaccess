@@ -1,5 +1,7 @@
 Options -Indexes
 ServerSignature Off
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .php .html .css .js
 
 # ============================================================
 # HTTPS Yönlendirme (Localde YORUMA ALINDI)

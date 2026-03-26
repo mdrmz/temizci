@@ -1,15 +1,13 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
 
-// Giriş yaptıysa dashboard'a yönlendir
 if (isLoggedIn()) {
     redirect(APP_URL . '/dashboard');
 }
 
-// Son ilanları çek
 try {
     $db = getDB();
     $stmt = $db->query("
@@ -33,43 +31,28 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- ===== Temel SEO ===== -->
-    <title>Temizci Burada — Eviniz İçin Güvenilir Temizlik Hizmeti</title>
-    <meta name="description"
-        content="Temizci Burada ile eviniz için güvenilir ev temizliği, cam temizliği, ütü ve daha fazlasında hizmet ilanı oluşturun. Binlerce temizlikçi arasından size en uygununu bulun.">
-    <meta name="keywords"
-        content="temizlikçi bul, ev temizliği, temizlik ilanı, günübirlik temizlikçi, ev temizleme hizmeti, temizlikçi ara, Türkiye temizlik platformu">
+    <title>Temizci Burada - Eviniz Icin Guvenilir Temizlik Hizmeti</title>
+    <meta name="description" content="Temizci Burada ile eviniz icin guvenilir ev temizligi, cam temizligi, utu ve daha fazlasinda hizmet ilani olusturun.">
+    <meta name="keywords" content="temizlikci bul, ev temizligi, temizlik ilani, gunubirlik temizlikci, temizlik hizmeti, Turkiye temizlik platformu">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.temizciburada.com/">
-    
-    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#3f7d58">
     <link rel="apple-touch-icon" href="logo.png">
-
-    <!-- ===== Open Graph (Facebook, WhatsApp, LinkedIn) ===== -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.temizciburada.com/">
-    <meta property="og:title" content="Temizci Burada — Güvenilir Temizlik Hizmeti Platformu">
-    <meta property="og:description"
-        content="Eviniz için güvenilir temizlik hizmeti bulmanın en kolay yolu. İlan verin, teklifler alın, seçin ve temiz bir eve kavuşun!">
+    <meta property="og:title" content="Temizci Burada - Guvenilir Temizlik Hizmeti Platformu">
+    <meta property="og:description" content="Eviniz icin guvenilir temizlik hizmeti bulmanin en duzenli yolu. Ilan verin, teklifler alin ve size en uygun kisiyi secin.">
     <meta property="og:image" content="https://temizciburada.com/logo.png">
     <meta property="og:locale" content="tr_TR">
     <meta property="og:site_name" content="Temizci Burada">
-
-    <!-- ===== Twitter / X Card ===== -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Temizci Burada — Temizlik Hizmetleri Platformu">
-    <meta name="twitter:description"
-        content="Türkiye'nin yeni temizlik hizmetleri pazaryeri. İlan ver, teklif al, temiz bir eve kavuş!">
+    <meta name="twitter:title" content="Temizci Burada - Temizlik Hizmetleri Platformu">
+    <meta name="twitter:description" content="Turkiye'nin yeni temizlik hizmetleri pazaryeri. Ilan ver, teklif al, temiz bir eve kavus.">
     <meta name="twitter:image" content="https://temizciburada.com/logo.png">
-
-    <!-- ===== Schema.org — WebSite + Organization + Service ===== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -79,7 +62,7 @@ try {
           "name": "Temizci Burada",
           "alternateName": "temizciburada.com",
           "url": "https://www.temizciburada.com",
-          "description": "Ev temizliği, cam temizliği ve günübirlik hizmetler için Türkiye'nin güvenilir platformu.",
+          "description": "Ev temizligi, cam temizligi ve gunubirlik hizmetler icin Turkiye'nin guvenilir platformu.",
           "inLanguage": "tr-TR",
           "potentialAction": {
             "@type": "SearchAction",
@@ -103,33 +86,18 @@ try {
           },
           "areaServed": {
             "@type": "Country",
-            "name": "Türkiye"
-          },
-          "description": "Türkiye'nin ev temizliği ve günübirlik hizmet ilanları platformu. Ev sahiplerini güvenilir temizlikçilerle buluşturur.",
-          "knowsAbout": ["Ev Temizliği", "Cam Temizliği", "Ütü Hizmeti", "Koltuk Yıkama", "Halı Yıkama", "Günübirlik Temizlik"]
+            "name": "Turkiye"
+          }
         },
         {
           "@type": "Service",
-          "serviceType": "Ev Temizliği Pazaryeri",
+          "serviceType": "Ev Temizligi Pazaryeri",
           "provider": { "@type": "Organization", "name": "Temizci Burada" },
-          "areaServed": { "@type": "Country", "name": "Türkiye" },
-          "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "Temizlik Hizmetleri",
-            "itemListElement": [
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ev Temizliği" } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Cam ve Pencere Temizliği" } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ütü ve Çamaşır" } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Koltuk Yıkama" } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Bahçe Düzenleme" } }
-            ]
-          }
+          "areaServed": { "@type": "Country", "name": "Turkiye" }
         }
       ]
     }
     </script>
-
-    <!-- ===== Schema.org — FAQPage (AI & Google için) ===== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -140,764 +108,414 @@ try {
           "name": "Temizci Burada nedir?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Temizci Burada, ev sahiplerini güvenilir temizlik hizmeti verenlerle buluşturan Türkiye merkezli bir çevrimiçi pazar yeridir. Ev temizliği, cam temizliği, ütü, çamaşır ve daha fazlası için ilan açılabilir."
+            "text": "Temizci Burada, ev sahiplerini guvenilir temizlik hizmeti verenlerle bulusturan Turkiye merkezli bir cevrimici pazar yeridir."
           }
         },
         {
           "@type": "Question",
-          "name": "Temizci Burada'da kayıt ve ilan açmak ücretsiz mi?",
+          "name": "Kayit ve ilan acmak ucretsiz mi?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Evet, Temizci Burada'da hem ev sahipleri hem de hizmet verenler için kayıt ve ilan oluşturma tamamen ücretsizdir."
+            "text": "Evet. Temizci Burada'da hem ev sahipleri hem de hizmet verenler icin kayit ve ilan olusturma ucretsizdir."
           }
         },
         {
           "@type": "Question",
-          "name": "Temizci Burada hangi şehirlerde hizmet veriyor?",
+          "name": "Teklif almak ne kadar surer?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Temizci Burada Türkiye genelinde tüm şehirlere hizmet vermektedir; İstanbul, Ankara, İzmir, Bursa, Antalya başta olmak üzere tüm illerden ilan açılıp teklif alınabilir."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Temizci Burada'da nasıl temizlikçi bulurum?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "temizciburada.com adresine ücretsiz kayıt olun, evinizin bilgilerini girin, hangi hizmeti istediğinizi seçin ve ilan oluşturun. Hizmet verenler tekliflerini gönderir, siz de en uygununu seçersiniz."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Temizci Burada güvenli mi?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Evet. Platform güvenli veritabanı sorguları, şifreli kullanıcı verileri ve CSRF koruması kullanmaktadır. Kullanıcı profilleri ve değerlendirmeler sistemi şeffaflık sağlar."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Ev temizliği için teklif almak ne kadar sürer?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Temizci Burada'da ilan verdikten sonra genellikle birkaç saat içinde birden fazla teklif gelir. Hizmet verenler ilana doğrudan teklif göndererek fiyatlarını belirtir."
+            "text": "Ilan verdikten sonra genellikle birkac saat icinde birden fazla teklif gelmeye baslar."
           }
         }
       ]
     }
     </script>
-
-    <!-- ===== Schema.org — HowTo (Nasıl Çalışır) ===== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "HowTo",
-      "name": "Temizci Burada ile Temizlikçi Nasıl Bulunur?",
-      "description": "Temizci Burada üzerinden ev temizliği, cam temizliği veya günübirlik hizmet için nasıl ilan oluşturulur ve temizlikçi bulunur?",
+      "name": "Temizci Burada ile temizlikci nasil bulunur?",
+      "description": "Temizci Burada uzerinden temizlik hizmeti icin nasil ilan olusturulur ve uzman secilir?",
       "totalTime": "PT5M",
       "step": [
         {
           "@type": "HowToStep",
-          "name": "Ücretsiz Kayıt Ol",
-          "text": "temizciburada.com adresine gidin ve 'Ücretsiz Başla' butonuna tıklayarak Ev Sahibi rolüyle kayıt olun.",
+          "name": "Ucretsiz kayit ol",
+          "text": "Kayit olun ve ev sahibi veya hizmet veren olarak profilinizi olusturun.",
           "url": "https://www.temizciburada.com/register.php"
         },
         {
           "@type": "HowToStep",
-          "name": "Evini Ekle",
-          "text": "Evinizin fotoğrafını yükleyin, oda sayısı (örn. 3+1), metrekare ve şehir bilgilerini girin.",
+          "name": "Ev bilgilerini ekle",
+          "text": "Fotograf, oda sayisi, metrekare ve sehir bilgilerini girin.",
           "url": "https://www.temizciburada.com/homes/add.php"
         },
         {
           "@type": "HowToStep",
-          "name": "İlan Oluştur",
-          "text": "İstediğiniz hizmet türünü (temizlik, cam, ütü vb.), tercih ettiğiniz tarihi ve bütçeyi belirleyin, ilanı yayınlayın.",
+          "name": "Ilan olustur",
+          "text": "Hizmet turunu, tercih edilen tarihi ve butceyi belirleyin.",
           "url": "https://www.temizciburada.com/listings/create.php"
         },
         {
           "@type": "HowToStep",
-          "name": "Tekliflerden Seçin",
-          "text": "Hizmet verenlerden gelen teklifleri inceleyin, profilleri ve fiyatları karşılaştırın, en uygun teklifi kabul edin.",
+          "name": "Teklifleri sec",
+          "text": "Gelen teklifleri profil, fiyat ve uygunluk bilgileriyle karsilastirin.",
           "url": "https://www.temizciburada.com/listings/browse.php"
         }
       ]
     }
     </script>
-
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
-
-    <style>
-        body {
-            padding-top: 0;
-        }
-
-        .navbar {
-            background: transparent;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar.scrolled {
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom-color: var(--border);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .navbar.scrolled .navbar-logo span {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .navbar:not(.scrolled) .navbar-nav a {
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .navbar:not(.scrolled) .navbar-nav a:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar:not(.scrolled) .btn-outline {
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-        }
-
-        .navbar:not(.scrolled) .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-
-        .navbar:not(.scrolled) .navbar-logo-text span {
-            background: linear-gradient(135deg, #a78bfa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-visual {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 400px;
-            position: relative;
-        }
-
-        .hero-mockup {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            padding: 24px;
-            width: 320px;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
-        }
-
-        .mockup-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .mockup-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: #fff;
-        }
-
-        .mockup-title {
-            font-weight: 700;
-            color: #fff;
-            font-size: 0.9rem;
-        }
-
-        .mockup-sub {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .mockup-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .mockup-item-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .mockup-item-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: rgba(108, 99, 255, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        .mockup-item-name {
-            font-weight: 600;
-            color: #fff;
-            font-size: 0.82rem;
-        }
-
-        .mockup-item-loc {
-            font-size: 0.72rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .mockup-price {
-            font-weight: 700;
-            color: #34d399;
-            font-size: 0.85rem;
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .stat-mini {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .stat-mini-val {
-            font-weight: 800;
-            color: #fff;
-            font-size: 1.1rem;
-        }
-
-        .stat-mini-lbl {
-            font-size: 0.68rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .testimonial-section {
-            padding: 80px 0;
-            background: var(--bg);
-        }
-
-        .testimonial-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            padding: 28px;
-            transition: var(--transition);
-        }
-
-        .testimonial-card:hover {
-            box-shadow: var(--shadow);
-            transform: translateY(-3px);
-        }
-
-        .testimonial-text {
-            font-size: 0.92rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .tes-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .tes-name {
-            font-weight: 700;
-            font-size: 0.88rem;
-        }
-
-        .tes-role {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-
-        .cta-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #0f0c29, #302b63);
-            text-align: center;
-            color: #fff;
-        }
-
-        .cta-section h2 {
-            font-size: clamp(1.6rem, 4vw, 2.4rem);
-            font-weight: 900;
-            margin-bottom: 14px;
-        }
-
-        .cta-section p {
-            opacity: 0.8;
-            margin-bottom: 32px;
-            font-size: 1rem;
-        }
-
-        .cta-btns {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    </style>
-    <!-- AOS CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" href="/logo.png" type="image/png">
+    <style>
+        body { padding-top: 0; }
+        .navbar { background: transparent; border-bottom: 0; }
+        .navbar.scrolled { background: transparent; border-bottom: 0; box-shadow: none; }
+    </style>
 </head>
-
-<body>
-
-    <!-- ======== NAV ======== -->
+<body class="minimal-home">
     <nav class="navbar" id="mainNav">
         <div class="navbar-inner container">
             <a href="index" class="navbar-logo">
-                <div class="logo-icon"
-                    style="width:36px;height:36px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                <div class="logo-icon" style="width:36px;height:36px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
                     <img src="logo.png" alt="Temizci Burada Logo" style="width:100%;height:100%;object-fit:cover;">
                 </div>
                 <span class="navbar-logo-text"><span>Temizci Burada</span></span>
             </a>
             <div class="navbar-nav">
-                <a href="listings/browse">İlanlar</a>
-                <a href="#nasil-calisir">Nasıl Çalışır?</a>
-                <a href="#kategoriler">Kategoriler</a>
+                <a href="listings/browse"><span class="nav-mini-icon">◧</span>Ilanlar</a>
+                <a href="#nasil-calisir"><span class="nav-mini-icon">◴</span>Nasil Calisir?</a>
+                <a href="#kategoriler"><span class="nav-mini-icon">◫</span>Kategoriler</a>
             </div>
             <div class="navbar-actions">
-                <button class="theme-toggle-btn" id="themeToggle" title="Tema Değiştir" style="margin-right:10px;">🌙</button>
-                <a href="login" class="btn btn-outline btn-sm">Giriş Yap</a>
-                <a href="register" class="btn btn-primary btn-sm">Ücretsiz Başla</a>
+                <button class="theme-toggle-btn" id="themeToggle" title="Tema Degistir" style="margin-right:10px;">TM</button>
+                <a href="login" class="btn btn-outline btn-sm"><span class="nav-mini-icon">↪</span>Giris Yap</a>
+                <a href="register" class="btn btn-primary btn-sm"><span class="btn-mini-icon">✦</span>Ucretsiz Basla</a>
             </div>
         </div>
     </nav>
-
-    <!-- ======== HERO ======== -->
     <section class="hero">
-        <div class="container"
-            style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding-top:40px;padding-bottom:60px;">
-            <div class="hero-content" data-aos="fade-right">
-                <div class="hero-badge">
-                    ✨ Türkiye'nin Yeni Temizlik Platformu
-                </div>
-                <h1>
-                    Evinizi Temiz Tutmanın<br>
-                    <span class="gradient-text">En Kolay Yolu</span>
-                </h1>
-                <p class="hero-desc">
-                    İlan verin, teklifler alın — güvenilir temizlik hizmetlerine dakikalar içinde ulaşın. Ev
-                    bilgilerinizi kaydedin, tarih seçin, bütçenizi belirleyin.
-                </p>
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="hero-badge">Sade ve guvenilir platform</div>
+                <h1>Eviniz icin temizlik uzmanini <span class="gradient-text">kolayca bulun</span></h1>
+                <p class="hero-desc">Ilaninizi olusturun, gelen teklifleri tek ekranda karsilastirin ve size uygun kisiyle hizlica anlasin.</p>
                 <div class="hero-actions">
-                    <a href="register" class="btn btn-primary btn-lg">
-                        🚀 Hemen Başla
-                    </a>
-                    <a href="listings/browse" class="btn btn-white btn-lg">
-                        📋 İlanları Gör
-                    </a>
+                    <a href="register" class="btn btn-primary btn-lg">Hemen Basla</a>
+                    <a href="listings/browse" class="btn btn-white btn-lg">Ilanlari Incele</a>
                 </div>
-                <div style="display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;">
-                    <div>
-                        <div style="font-weight:800;font-size:1.4rem;color:#fff;">2.500+</div>
-                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Tamamlanan İş</div>
+                <div class="trust-points">
+                    <span class="trust-chip">Onayli profiller</span>
+                    <span class="trust-chip">Sade karsilastirma</span>
+                    <span class="trust-chip">Hizli teklif</span>
+                </div>
+                <div class="hero-metrics mt-5">
+                    <div class="hero-metric">
+                        <div class="hero-metric-value">2.500+</div>
+                        <div class="hero-metric-label">tamamlanan is</div>
                     </div>
-                    <div>
-                        <div style="font-weight:800;font-size:1.4rem;color:#fff;">1.200+</div>
-                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Hizmet Veren</div>
+                    <div class="hero-metric">
+                        <div class="hero-metric-value">1.200+</div>
+                        <div class="hero-metric-label">aktif hizmet veren</div>
                     </div>
-                    <div>
-                        <div style="font-weight:800;font-size:1.4rem;color:#fff;">4.8 ⭐</div>
-                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Ortalama Puan</div>
+                    <div class="hero-metric">
+                        <div class="hero-metric-value">4.8/5</div>
+                        <div class="hero-metric-label">ortalama memnuniyet</div>
                     </div>
                 </div>
             </div>
-            <div class="hero-right" data-aos="fade-left" data-aos-delay="200">
-                <div class="hero-visual">
-                    <div class="hero-mockup">
-                        <div class="mockup-header">
-                            <div class="mockup-avatar">👩</div>
-                            <div>
-                                <div class="mockup-title">Ayşe T. — Ev Temizliği</div>
-                                <div class="mockup-sub">3+1 • Kadıköy, İstanbul</div>
-                            </div>
+            <div class="hero-right">
+                <div class="hero-panel">
+                    <div class="hero-panel-top">
+                        <div>
+                            <div class="eyebrow">Bugunun ilani</div>
+                            <div class="hero-panel-title">Ayse T. icin haftalik ev temizligi</div>
+                            <div class="hero-panel-subtitle">3+1 daire, Kadikoy, sali sabahi</div>
                         </div>
-                        <div class="mockup-item">
-                            <div class="mockup-item-left">
-                                <div class="mockup-item-icon">🧹</div>
-                                <div>
-                                    <div class="mockup-item-name">Genel Temizlik</div>
-                                    <div class="mockup-item-loc">📅 Yarın Sabah</div>
-                                </div>
-                            </div>
-                            <div class="mockup-price">450 ₺</div>
-                        </div>
-                        <div class="mockup-item">
-                            <div class="mockup-item-left">
-                                <div class="mockup-item-icon">🪟</div>
-                                <div>
-                                    <div class="mockup-item-name">Cam Temizliği</div>
-                                    <div class="mockup-item-loc">📅 Bu Hafta</div>
-                                </div>
-                            </div>
-                            <div class="mockup-price">280 ₺</div>
-                        </div>
-                        <div class="mockup-item">
-                            <div class="mockup-item-left">
-                                <div class="mockup-item-icon">👕</div>
-                                <div>
-                                    <div class="mockup-item-name">Ütü & Çamaşır</div>
-                                    <div class="mockup-item-loc">📅 Esnek</div>
-                                </div>
-                            </div>
-                            <div class="mockup-price">180 ₺</div>
-                        </div>
-                        <div class="stats-row">
-                            <div class="stat-mini">
-                                <div class="stat-mini-val">12</div>
-                                <div class="stat-mini-lbl">Teklif Geldi</div>
-                            </div>
-                            <div class="stat-mini">
-                                <div class="stat-mini-val">3</div>
-                                <div class="stat-mini-lbl">Aktif İlan</div>
-                            </div>
-                            <div class="stat-mini">
-                                <div class="stat-mini-val">4.9★</div>
-                                <div class="stat-mini-lbl">Puanım</div>
-                            </div>
+                        <div class="hero-panel-score">
+                            <strong>4.9</strong>
+                            <span>puan ort.</span>
                         </div>
                     </div>
-
-                    <!-- Floating cards -->
+                    <div class="job-list">
+                        <div class="job-item">
+                            <div class="job-item-main">
+                                <div class="job-item-icon">GT</div>
+                                <div>
+                                    <div class="job-item-title">Genel temizlik</div>
+                                    <div class="job-item-meta">Yarin, 09:00 - 13:00</div>
+                                </div>
+                            </div>
+                            <div class="job-item-price">450 TL</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-item-main">
+                                <div class="job-item-icon">CT</div>
+                                <div>
+                                    <div class="job-item-title">Cam ve yuzeyler</div>
+                                    <div class="job-item-meta">Ayni ziyaret icinde dahil</div>
+                                </div>
+                            </div>
+                            <div class="job-item-price">280 TL</div>
+                        </div>
+                        <div class="job-item">
+                            <div class="job-item-main">
+                                <div class="job-item-icon">UT</div>
+                                <div>
+                                    <div class="job-item-title">Utu ve camasir duzeni</div>
+                                    <div class="job-item-meta">Esnek, ekstra hizmet secenegi</div>
+                                </div>
+                            </div>
+                            <div class="job-item-price">180 TL</div>
+                        </div>
+                    </div>
+                    <div class="hero-panel-footer">
+                        <div class="mini-stat"><strong>12</strong><span>gelen teklif</span></div>
+                        <div class="mini-stat"><strong>3</strong><span>aktif ilan</span></div>
+                        <div class="mini-stat"><strong>98%</strong><span>zamaninda cevap</span></div>
+                    </div>
                     <div class="hero-floating hero-floating-1">
-                        <span style="font-size:1.3rem">✅</span>
+                        <span style="font-size:1.3rem">+</span>
                         <div>
-                            <div style="font-size:0.75rem;opacity:0.8;">Yeni Teklif</div>
-                            <div style="font-weight:700">350 ₺ — Fatma H.</div>
+                            <div style="font-size:0.75rem;opacity:0.8;">Yeni teklif</div>
+                            <div style="font-weight:700">350 TL - Fatma H.</div>
                         </div>
                     </div>
                     <div class="hero-floating hero-floating-3">
-                        <span style="font-size:1.3rem">⭐</span>
+                        <span style="font-size:1.3rem">*</span>
                         <div>
-                            <div style="font-size:0.75rem;opacity:0.8;">Değerlendirme</div>
-                            <div style="font-weight:700">5/5 — Harika iş!</div>
+                            <div style="font-size:0.75rem;opacity:0.8;">Degerlendirme</div>
+                            <div style="font-weight:700">5/5 - Harika is</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- ======== CATEGORIES ======== -->
-    <section id="kategoriler" style="padding:80px 0;background:#fff;">
+    <section class="editorial-section">
+        <div class="container editorial-grid">
+            <div class="editorial-card" data-aos="fade-up">
+                <div class="section-badge">Neden farkli?</div>
+                <h3>Platform hissi yerine, ozenli bir hizmet deneyimi</h3>
+                <p>Temizci Burada; ilan vermeyi, karsilastirmayi ve dogru kisiyi secmeyi daha sakin ve daha profesyonel bir akisa donusturur. Karmasa yok, gereksiz bagirti yok.</p>
+                <div class="editorial-points">
+                    <div class="editorial-point">
+                        <div class="editorial-point-icon">01</div>
+                        <div><strong>Net beklenti kurulur</strong><span>Ev tipi, tarih, butce ve hizmet kapsami daha bastan dogru tarif edilir.</span></div>
+                    </div>
+                    <div class="editorial-point">
+                        <div class="editorial-point-icon">02</div>
+                        <div><strong>Teklifler anlamli gorunur</strong><span>Fiyat, profil ve uygunluk ayni ritimde karsiniza gelir.</span></div>
+                    </div>
+                    <div class="editorial-point">
+                        <div class="editorial-point-icon">03</div>
+                        <div><strong>Guven duygusu kaybolmaz</strong><span>Degerlendirmeler ve profil detaylari secim aninda destek olur.</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="editorial-side" data-aos="fade-up" data-aos-delay="150">
+                <div class="editorial-note"><strong>Ev sahipleri icin</strong><p>Bir kez ev bilgisini tanimlayin, sonrasinda her ilanda sifirdan baslamak yerine daha hizli ilerleyin.</p></div>
+                <div class="editorial-note"><strong>Hizmet verenler icin</strong><p>Karar vermeyi kolaylastiran daha temiz kartlar ve daha okunur ilan detaylariyla dogru islere daha rahat teklif verin.</p></div>
+                <div class="editorial-note"><strong>Marka hissi icin</strong><p>Sicak tonlar, daha iyi bosluk kullanimi ve editoryal tipografi ile guven veren bir ilk izlenim olusur.</p></div>
+            </div>
+        </div>
+    </section>
+    <section id="kategoriler" class="listing-showcase">
         <div class="container">
-            <div class="section-header" data-aos="fade-up">
+            <div class="section-header">
                 <div class="section-badge">Kategoriler</div>
-                <h2>Hangi Hizmete İhtiyacınız Var?</h2>
-                <p>İhtiyacınıza uygun kategoriyi seçin, ilgili ilanları keşfedin</p>
+                <h2>Hangi hizmete ihtiyaciniz var?</h2>
+                <p>Ihtiyaciniza uygun kategoriyi secin ve size en yakin hizmet akisini kesfedin.</p>
             </div>
             <div class="cat-grid">
                 <?php foreach ($categories as $cat): ?>
                     <a href="listings/browse?cat=<?= e($cat['slug']) ?>" class="cat-item">
-                        <div class="cat-icon">
-                            <?= $cat['icon'] ?>
-                        </div>
-                        <div class="cat-name">
-                            <?= e($cat['name']) ?>
-                        </div>
+                        <div class="cat-icon"><?= $cat['icon'] ?></div>
+                        <div class="cat-name"><?= e($cat['name']) ?></div>
                     </a>
                 <?php endforeach; ?>
                 <?php if (empty($categories)): ?>
-                    <a href="listings/browse?cat=ev-temizligi" class="cat-item">
-                        <div class="cat-icon">🧹</div>
-                        <div class="cat-name">Ev Temizliği</div>
-                    </a>
-                    <a href="listings/browse?cat=cam-pencere" class="cat-item">
-                        <div class="cat-icon">🪟</div>
-                        <div class="cat-name">Cam & Pencere</div>
-                    </a>
-                    <a href="listings/browse?cat=utu-camasir" class="cat-item">
-                        <div class="cat-icon">👕</div>
-                        <div class="cat-name">Ütü & Çamaşır</div>
-                    </a>
-                    <a href="listings/browse?cat=bulasik" class="cat-item">
-                        <div class="cat-icon">🍽️</div>
-                        <div class="cat-name">Bulaşık</div>
-                    </a>
-                    <a href="listings/browse?cat=bahce" class="cat-item">
-                        <div class="cat-icon">🌿</div>
-                        <div class="cat-name">Bahçe</div>
-                    </a>
-                    <a href="listings/browse?cat=koltuk-yikama" class="cat-item">
-                        <div class="cat-icon">🛋️</div>
-                        <div class="cat-name">Koltuk Yıkama</div>
-                    </a>
-                    <a href="listings/browse?cat=genel-temizlik" class="cat-item">
-                        <div class="cat-icon">✨</div>
-                        <div class="cat-name">Genel Temizlik</div>
-                    </a>
-                    <a href="listings/browse" class="cat-item">
-                        <div class="cat-icon">📋</div>
-                        <div class="cat-name">Diğer</div>
-                    </a>
+                    <a href="listings/browse?cat=ev-temizligi" class="cat-item"><div class="cat-icon">ET</div><div class="cat-name">Ev Temizligi</div></a>
+                    <a href="listings/browse?cat=cam-pencere" class="cat-item"><div class="cat-icon">CP</div><div class="cat-name">Cam ve Pencere</div></a>
+                    <a href="listings/browse?cat=utu-camasir" class="cat-item"><div class="cat-icon">UC</div><div class="cat-name">Utu ve Camasir</div></a>
+                    <a href="listings/browse?cat=bulasik" class="cat-item"><div class="cat-icon">BL</div><div class="cat-name">Bulasik</div></a>
+                    <a href="listings/browse?cat=bahce" class="cat-item"><div class="cat-icon">BH</div><div class="cat-name">Bahce</div></a>
+                    <a href="listings/browse?cat=koltuk-yikama" class="cat-item"><div class="cat-icon">KY</div><div class="cat-name">Koltuk Yikama</div></a>
+                    <a href="listings/browse?cat=genel-temizlik" class="cat-item"><div class="cat-icon">GT</div><div class="cat-name">Genel Temizlik</div></a>
+                    <a href="listings/browse" class="cat-item"><div class="cat-icon">DG</div><div class="cat-name">Diger</div></a>
                 <?php endif; ?>
             </div>
         </div>
     </section>
-
-    <!-- ======== HOW IT WORKS ======== -->
-    <section id="nasil-calisir" class="how-section" style="background:var(--bg);">
+    <section id="nasil-calisir" class="how-section">
         <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <div class="section-badge">Nasıl Çalışır?</div>
-                <h2>3 Adımda Temizlik Hizmeti</h2>
-                <p>Kayıt olmaktan işi tamamlamaya kadar her şey çok kolay</p>
+            <div class="section-header">
+                <div class="section-badge">Nasil calisir?</div>
+                <h2>Uc adimda duzenli bir deneyim</h2>
+                <p>Kayit olmaktan dogru teklifi secmeye kadar akisin her asamasi sade ve anlasilir.</p>
             </div>
             <div class="grid-3">
-                <div class="step-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="step-card">
                     <div class="step-num">1</div>
-                    <div class="step-icon">🏠</div>
-                    <h3>Evini Ekle</h3>
-                    <p>Evinizin fotoğrafını yükleyin, oda sayısını, metrekaresini ve diğer bilgileri girin.</p>
+                    <div class="step-icon">EV</div>
+                    <h3>Evinizi tanimlayin</h3>
+                    <p>Evinizin tipi, oda sayisi, fotografi ve temel ihtiyaclarini net sekilde girin.</p>
                 </div>
-                <div class="step-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="step-card">
                     <div class="step-num">2</div>
-                    <div class="step-icon">📋</div>
-                    <h3>İlan Ver</h3>
-                    <p>İstediğiniz hizmet türünü, tarihi ve bütçeyi belirleyerek dakikalar içinde ilan oluşturun.</p>
+                    <div class="step-icon">IL</div>
+                    <h3>Ilaninizi acin</h3>
+                    <p>Tarih, butce ve hizmet kapsamini belirleyin; uzmanlar ne istediginizi hemen anlasin.</p>
                 </div>
-                <div class="step-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="step-card">
                     <div class="step-num">3</div>
-                    <div class="step-icon">🤝</div>
-                    <h3>Teklif Al & Seç</h3>
-                    <p>Hizmet verenlerden teklifler gelir, en uygununu seçer, işi tamamlarsınız.</p>
+                    <div class="step-icon">TK</div>
+                    <h3>Teklifleri secin</h3>
+                    <p>Gelen teklifleri profil, fiyat ve uygunluk bilgileriyle karsilastirin ve seciminizi yapin.</p>
                 </div>
+            </div>
+            <div class="process-band">
+                <div class="process-band-item"><strong>Sakin arayuz</strong><span>Fazla gorsel gurultu olmadan karar verin.</span></div>
+                <div class="process-band-item"><strong>Daha iyi hiyerarsi</strong><span>Onemli bilgi once, detaylar sonra gelsin.</span></div>
+                <div class="process-band-item"><strong>Guven hissi</strong><span>Profil ve degerlendirmeler secimi desteklesin.</span></div>
             </div>
         </div>
     </section>
-
-    <!-- ======== SON İLANLAR ======== -->
     <?php if (!empty($listings)): ?>
-        <section style="padding:80px 0;background:#fff;">
+        <section class="listing-showcase">
             <div class="container">
-                <div class="section-header">
-                    <div class="section-badge">Son İlanlar</div>
-                    <h2>Güncel Temizlik İlanları</h2>
-                    <p>En son eklenen ilanları inceleyin, teklif verin</p>
+                <div class="section-topline">
+                    <div class="section-header">
+                        <div class="section-badge">Son ilanlar</div>
+                        <h2>Guncel temizlik ilanlari</h2>
+                        <p>En son eklenen ilanlari inceleyin ve uygun gorduklerinize hemen teklif verin.</p>
+                    </div>
+                    <a href="listings/browse" class="btn btn-outline">Tum ilanlari gor</a>
                 </div>
                 <div class="grid-3">
                     <?php foreach ($listings as $listing): ?>
                         <div class="card listing-card">
                             <?php if (!empty($listing['home_photo'])): ?>
-                                <div class="card-img-placeholder" style="background: url('<?= APP_URL ?>/uploads/homes/<?= $listing['home_photo'] ?>') center/cover no-repeat; position: relative; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                                    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.8)); border-radius: var(--radius-lg) var(--radius-lg) 0 0;"></div>
-                                    <span style="position: absolute; bottom: 15px; left: 15px; background: var(--gradient); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display:flex; gap: 8px; align-items:center;">
+                                <div class="card-img-placeholder" style="background:url('<?= APP_URL ?>/uploads/homes/<?= $listing['home_photo'] ?>') center/cover no-repeat; position:relative; border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+                                    <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(17,39,51,0.82)); border-radius:var(--radius-lg) var(--radius-lg) 0 0;"></div>
+                                    <span style="position:absolute; bottom:15px; left:15px; background:rgba(255,255,255,0.9); color:var(--primary); padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:700; display:flex; gap:8px; align-items:center;">
                                         <span><?= $listing['cat_icon'] ?></span> <?= e($listing['cat_name']) ?>
                                     </span>
                                 </div>
                                 <div class="card-content">
                             <?php else: ?>
-                                <div class="card-img-placeholder">
-                                    <?= $listing['cat_icon'] ?>
-                                </div>
+                                <div class="card-img-placeholder"><?= $listing['cat_icon'] ?></div>
                                 <div class="card-content">
-                                    <div class="listing-cat">
-                                        <?= $listing['cat_icon'] ?>
-                                        <?= e($listing['cat_name']) ?>
-                                    </div>
+                                    <div class="listing-cat"><?= $listing['cat_icon'] ?> <?= e($listing['cat_name']) ?></div>
                             <?php endif; ?>
-                                <div class="listing-title">
-                                    <?= e($listing['title']) ?>
-                                </div>
+                                <div class="listing-title"><?= e($listing['title']) ?></div>
                                 <div class="listing-meta">
-                                    <span>📍
-                                        <?= e($listing['city']) ?>
-                                    </span>
-                                    <span>🏠
-                                        <?= e($listing['room_config']) ?>
-                                    </span>
-                                    <span>📅
-                                        <?= date('d M', strtotime($listing['preferred_date'])) ?>
-                                    </span>
+                                    <span>SEHIR <?= e($listing['city']) ?></span>
+                                    <span>EV <?= e($listing['room_config']) ?></span>
+                                    <span>TARIH <?= date('d M', strtotime($listing['preferred_date'])) ?></span>
                                 </div>
                                 <div class="listing-footer">
                                     <?php if ($listing['budget']): ?>
-                                        <span class="listing-budget">
-                                            <?= formatMoney($listing['budget']) ?>
-                                        </span>
+                                        <span class="listing-budget"><?= formatMoney($listing['budget']) ?></span>
                                     <?php else: ?>
-                                        <span style="color:var(--text-muted);font-size:0.85rem;">Bütçe belirsiz</span>
+                                        <span style="color:var(--text-muted);font-size:0.85rem;">Butce belirsiz</span>
                                     <?php endif; ?>
-                                    <a href="listings/detail?id=<?= $listing['id'] ?>" class="btn btn-primary btn-sm">Teklif
-                                        Ver</a>
+                                    <a href="listings/detail?id=<?= $listing['id'] ?>" class="btn btn-primary btn-sm">Teklif Ver</a>
                                 </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="text-center mt-5">
-                    <a href="listings/browse" class="btn btn-outline btn-lg">Tüm İlanları Gör →</a>
-                </div>
             </div>
         </section>
     <?php endif; ?>
-
-    <!-- ======== TESTİMONYALS ======== -->
     <section class="testimonial-section">
         <div class="container">
             <div class="section-header">
                 <div class="section-badge">Yorumlar</div>
-                <h2>Kullanıcılarımız Ne Diyor?</h2>
+                <h2>Kullanicilarimiz ne diyor?</h2>
             </div>
             <div class="grid-3">
                 <div class="testimonial-card">
-                    <div class="testimonial-text">"Artık temizlikçi bulmak çok kolay! İlan verdim, 2 saat içinde 8
-                        teklif geldi. Fiyatlar da çok uygundu."</div>
+                    <div class="testimonial-kicker">Ev sahibi</div>
+                    <div class="testimonial-text">"Ilan verdikten sonra teklifler daginik gelmedi; hepsini rahatca karsilastirdim. Karar verme kismi ilk kez bu kadar duzenli hissettirdi."</div>
                     <div class="testimonial-author">
                         <div class="tes-avatar">A</div>
-                        <div>
-                            <div class="tes-name">Ayşe Kaplan</div>
-                            <div class="tes-role">Ev Sahibi · İstanbul</div>
-                        </div>
+                        <div><div class="tes-name">Ayse Kaplan</div><div class="tes-role">Ev Sahibi - Istanbul</div></div>
                     </div>
-                    <div style="margin-top:10px;">
-                        <?= starRating(5) ?>
-                    </div>
+                    <div style="margin-top:10px;"><?= starRating(5) ?></div>
                 </div>
                 <div class="testimonial-card">
-                    <div class="testimonial-text">"Güvenilir bir platform. Hem teklif verenler değerlendiriliyor hem de
-                        müşteriler. İşimi büyüttüm bu sayede."</div>
+                    <div class="testimonial-kicker">Hizmet veren</div>
+                    <div class="testimonial-text">"Ilan detaylari daha net oldugu icin bos teklif vermiyorum. Hangi eve, hangi beklentiyle gidecegimi bastan anlamak isi kolaylastiriyor."</div>
                     <div class="testimonial-author">
                         <div class="tes-avatar">F</div>
-                        <div>
-                            <div class="tes-name">Fatma Yıldız</div>
-                            <div class="tes-role">Temizlik Uzmanı · Ankara</div>
-                        </div>
+                        <div><div class="tes-name">Fatma Yildiz</div><div class="tes-role">Temizlik Uzm. - Ankara</div></div>
                     </div>
-                    <div style="margin-top:10px;">
-                        <?= starRating(5) ?>
-                    </div>
+                    <div style="margin-top:10px;"><?= starRating(5) ?></div>
                 </div>
                 <div class="testimonial-card">
-                    <div class="testimonial-text">"Ev bilgilerimi bir kez girdim, her seferinde tekrar tekrar
-                        yazmıyorum. Çok pratik bir sistem!"</div>
+                    <div class="testimonial-kicker">Duzenli kullanim</div>
+                    <div class="testimonial-text">"Ev bilgilerimi bir kez ekleyip daha sonra sadece tarih ve kapsam secmek ciddi zaman kazandiriyor. Platform daha olgun hissettiriyor."</div>
                     <div class="testimonial-author">
                         <div class="tes-avatar">M</div>
-                        <div>
-                            <div class="tes-name">Merve Demir</div>
-                            <div class="tes-role">Ev Sahibi · İzmir</div>
-                        </div>
+                        <div><div class="tes-name">Merve Demir</div><div class="tes-role">Ev Sahibi - Izmir</div></div>
                     </div>
-                    <div style="margin-top:10px;">
-                        <?= starRating(4) ?>
-                    </div>
+                    <div style="margin-top:10px;"><?= starRating(4) ?></div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- ======== CTA ======== -->
     <section class="cta-section">
         <div class="container">
-            <h2>Hemen Başlamaya Hazır mısınız?</h2>
-            <p>Ücretsiz kayıt olun, evinizi ekleyin, ilk ilanınızı verin!</p>
-            <div class="cta-btns">
-                <a href="register" class="btn btn-primary btn-lg">🏠 Ev Sahibiyim</a>
-                <a href="register?role=worker" class="btn"
-                    style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);padding:14px 30px;border-radius:var(--radius);font-size:1rem;font-weight:600;">🧹
-                    Hizmet Vermek İstiyorum</a>
+            <div class="cta-shell">
+                <div class="cta-copy">
+                    <div class="section-badge" style="background:rgba(255,255,255,0.12);color:#fff;">Hazirsiniz</div>
+                    <h2>Eviniz icin daha iyi bir baslangic yapin</h2>
+                    <p>Ucretsiz kayit olun, ilk ilaninizi acin ve size uygun temizlik uzmanlariyla daha ozenli bir deneyim yasayin.</p>
+                </div>
+                <div class="cta-actions">
+                    <a href="register" class="btn btn-primary btn-lg">Ev Sahibiyim</a>
+                    <a href="register?role=worker" class="btn btn-outline btn-lg">Hizmet Vermek Istiyorum</a>
+                </div>
             </div>
         </div>
     </section>
-
-    <!-- ======== FOOTER ======== -->
     <footer class="footer">
         <div class="container">
             <div class="grid-4" style="gap:40px;">
                 <div style="grid-column:span 2;">
-                    <div class="footer-logo">🧹 Temizci Burada</div>
-                    <p class="footer-desc">Ev hanımları ve günübirlik hizmet arayanlar için güvenilir temizlik ilanları
-                        platformu.</p>
+                    <div class="footer-logo">Temizci Burada</div>
+                    <p class="footer-desc">Evinin duzenine onem verenlerle, isini ozenle yapan hizmet verenleri ayni cizgide bulusturan yeni nesil temizlik platformu.</p>
                 </div>
                 <div>
                     <div class="footer-title">Platform</div>
                     <div class="footer-links">
-                        <a href="listings/browse">İlanlar</a>
-                        <a href="register">Kayıt Ol</a>
-                        <a href="login">Giriş Yap</a>
+                        <a href="listings/browse">Ilanlar</a>
+                        <a href="register">Kayit Ol</a>
+                        <a href="login">Giris Yap</a>
                     </div>
                 </div>
                 <div>
-                    <div class="footer-title">İletişim</div>
+                    <div class="footer-title">Iletisim</div>
                     <div class="footer-links">
                         <a href="mailto:info@temizciburada.com">info@temizciburada.com</a>
                         <a href="kvkk">KVKK</a>
-                        <a href="cerez-politikasi">Çerez Politikası</a>
-                        <a href="#">Destek</a>
+                        <a href="cerez-politikasi">Cerez Politikasi</a>
+                        <a href="destek">Destek</a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>©
-                    <?= date('Y') ?> Temizci Burada · Tüm hakları saklıdır. ·
-                    <a href="kvkk" style="color:var(--text-muted);">KVKK</a> ·
-                    <a href="cerez-politikasi" style="color:var(--text-muted);">Çerez Politikası</a>
-                </p>
+                <p>&copy; <?= date('Y') ?> Temizci Burada · Tum haklari saklidir. · <a href="kvkk" style="color:rgba(255,255,255,0.65);">KVKK</a> · <a href="cerez-politikasi" style="color:rgba(255,255,255,0.65);">Cerez Politikasi</a></p>
             </div>
         </div>
     </footer>
-
-    <!-- ===== Cookie Banner ===== -->
-    <div id="cookieBanner" style="
-        display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
-        background:rgba(15,12,41,0.97);color:#fff;padding:16px 24px;
-        display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-        box-shadow:0 -4px 24px rgba(0,0,0,0.3);backdrop-filter:blur(10px);
-    ">
-        <p style="margin:0;font-size:0.88rem;opacity:0.9;max-width:700px;line-height:1.6;">
-            🍪 Bu site yalnızca oturum yönetimi için zorunlu çerezler kullanır.
-            <a href="cerez-politikasi" style="color:#a78bfa;text-decoration:underline;">Çerez Politikası</a> ve
-            <a href="kvkk" style="color:#a78bfa;text-decoration:underline;">KVKK Aydınlatma Metni</a>
-        </p>
-        <button id="cookieAccept" onclick="acceptCookies()" style="
-            background:#6C63FF;color:#fff;border:none;padding:10px 24px;
-            border-radius:8px;font-weight:600;cursor:pointer;font-size:0.88rem;
-            white-space:nowrap;flex-shrink:0;
-        ">Anladım, Kabul Et</button>
+    <div id="cookieBanner" class="cookie-banner">
+        <p>Bu site yalnizca oturum yonetimi icin zorunlu cerezler kullanir. <a href="cerez-politikasi">Cerez Politikasi</a> ve <a href="kvkk">KVKK Aydinlatma Metni</a></p>
+        <button id="cookieAccept" onclick="acceptCookies()" class="btn btn-primary btn-sm">Anladim, Kabul Et</button>
     </div>
     <script>
         function acceptCookies() {
@@ -908,22 +526,13 @@ try {
             document.getElementById('cookieBanner').style.display = 'flex';
         }
     </script>
-
-
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
-    <!-- AOS JS -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ once: true, offset: 50, duration: 600 });
-
-        // Navbar scroll effect
         const nav = document.getElementById('mainNav');
         window.addEventListener('scroll', () => {
             nav.classList.toggle('scrolled', window.scrollY > 20);
         });
-
-        // PWA Service Worker Kaydı
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -937,5 +546,5 @@ try {
         }
     </script>
 </body>
-
 </html>
+

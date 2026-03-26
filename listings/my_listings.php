@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -36,9 +36,8 @@ if (isset($_GET['delete'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İlanlarım — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>İlanlarım  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -55,13 +54,13 @@ if (isset($_GET['delete'])) {
 
             <div class="page-content">
                 <?= flashHtml() ?>
-                <div class="page-title">📋 İlanlarım</div>
+                <div class="page-title"> İlanlarım</div>
                 <div class="page-subtitle">Oluşturduğunuz tüm ilanları yönetin</div>
 
                 <?php if (empty($listings)): ?>
                     <div class="card">
                         <div class="empty-state">
-                            <div class="empty-state-icon">📋</div>
+                            <div class="empty-state-icon"></div>
                             <h3>Henüz ilanınız yok</h3>
                             <p>İlk ilanınızı oluşturun ve hizmet teklifleri almaya başlayın!</p>
                             <a href="create" class="btn btn-primary btn-lg">+ İlan Oluştur</a>
@@ -75,7 +74,7 @@ if (isset($_GET['delete'])) {
                                     <tr>
                                         <th>İlan</th>
                                         <th>Kategori</th>
-                                        <th>Şehir</th>
+                                        <th>Åehir</th>
                                         <th>Tarih</th>
                                         <th>Teklifler</th>
                                         <th>Durum</th>
@@ -95,7 +94,7 @@ if (isset($_GET['delete'])) {
                                                 <?= $l['cat_icon'] ?>
                                                 <?= e($l['cat_name']) ?>
                                             </td>
-                                            <td>📍
+                                            <td>
                                                 <?= e($l['city']) ?>
                                             </td>
                                             <td>
@@ -137,8 +136,10 @@ if (isset($_GET['delete'])) {
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

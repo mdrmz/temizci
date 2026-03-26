@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 if (session_status() === PHP_SESSION_NONE)
@@ -12,10 +12,9 @@ if (session_status() === PHP_SESSION_NONE)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Çerez Politikası | Temizci Burada</title>
     <meta name="description"
-        content="Temizci Burada çerez politikası — hangi çerezleri kullandığımız ve nasıl yönetebileceğiniz.">
+        content="Temizci Burada çerez politikası  -  hangi çerezleri kullandığımız ve nasıl yönetebileceğiniz.">
     <link rel="canonical" href="https://www.temizciburada.com/cerez-politikasi">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
     <style>
         .legal-page {
@@ -109,7 +108,7 @@ if (session_status() === PHP_SESSION_NONE)
     <nav class="navbar scrolled" style="background:rgba(255,255,255,0.97);">
         <div class="navbar-inner container">
             <a href="index" class="navbar-logo">
-                <div class="logo-icon">🧹</div>
+                <div class="logo-icon"></div>
                 <span class="navbar-logo-text"><span>Temizci Burada</span></span>
             </a>
         </div>
@@ -120,7 +119,7 @@ if (session_status() === PHP_SESSION_NONE)
             <a href="index">Ana Sayfa</a> / Çerez Politikası
         </div>
 
-        <h1>🍪 Çerez Politikası</h1>
+        <h1> Çerez Politikası</h1>
         <div class="update-date">Son güncelleme:
             <?= date('d.m.Y') ?>
         </div>
@@ -164,7 +163,7 @@ if (session_status() === PHP_SESSION_NONE)
         </table>
 
         <p>
-            ✅ Platformumuzda <strong>reklam çerezi, izleme çerezi veya üçüncü taraf analitik çerezi</strong>
+             Platformumuzda <strong>reklam çerezi, izleme çerezi veya üçüncü taraf analitik çerezi</strong>
             kullanılmamaktadır.
         </p>
 
@@ -204,3 +203,5 @@ if (session_status() === PHP_SESSION_NONE)
 </body>
 
 </html>
+
+

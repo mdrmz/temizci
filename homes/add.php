@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($address))
             $errors[] = 'Adres zorunludur.';
         if (empty($city))
-            $errors[] = 'Şehir zorunludur.';
+            $errors[] = 'Åehir zorunludur.';
         if (empty($room))
             $errors[] = 'Oda yapısı seçiniz.';
 
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             ")->execute([$user['id'], $title, $address, $district, $city, $room, $floor, $elevator, $bathroom, $sqm ?: null, $notes, $photoPath]);
 
-            setFlash('success', 'Ev başarıyla eklendi! 🏠');
+            setFlash('success', 'Ev başarıyla eklendi!  ');
             redirect(APP_URL . '/homes/list');
         }
     }
@@ -64,9 +64,8 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ev Ekle — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Ev Ekle  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -85,12 +84,12 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
             <div class="page-content">
                 <div class="container-sm">
-                    <div class="page-title">🏠 Yeni Ev Ekle</div>
+                    <div class="page-title">  Yeni Ev Ekle</div>
                     <div class="page-subtitle">Ev bilgilerinizi girin. Daha sonra ilanlarınızda bu evi
                         kullanabilirsiniz.</div>
 
                     <?php if (!empty($errors)): ?>
-                        <div class="flash flash-error">❌
+                        <div class="flash flash-error">
                             <?= e(implode('<br>', $errors)) ?>
                         </div>
                     <?php endif; ?>
@@ -98,7 +97,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                     <form method="POST" enctype="multipart/form-data" class="card" data-validate>
                         <?= csrfField() ?>
                         <div class="card-header">
-                            <div class="card-title">📋 Temel Bilgiler</div>
+                            <div class="card-title"> Temel Bilgiler</div>
                         </div>
                         <div class="card-body">
 
@@ -107,7 +106,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                 <label class="form-label">Ev Fotoğrafı</label>
                                 <div class="photo-upload-area">
                                     <input type="file" id="photoInput" name="photo" accept="image/*">
-                                    <div class="upload-icon">📷</div>
+                                    <div class="upload-icon"></div>
                                     <div class="upload-text">Fotoğraf yüklemek için tıklayın veya sürükleyin</div>
                                     <div class="upload-hint">JPG, PNG veya WEBP · Maks. 5MB</div>
                                 </div>
@@ -138,9 +137,9 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label" for="city">Şehir *</label>
+                                    <label class="form-label" for="city">Åehir *</label>
                                     <select id="city" name="city" class="form-control" required>
-                                        <option value="">Şehir seçin</option>
+                                        <option value="">Åehir seçin</option>
                                         <?php foreach ($cities as $c): ?>
                                             <option value="<?= e($c) ?>" <?= (($_POST['city'] ?? '') === $c) ? 'selected' : '' ?>>
                                                 <?= e($c) ?>
@@ -153,7 +152,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                         </div>
 
                         <div class="card-header" style="border-top:1px solid var(--border);">
-                            <div class="card-title">🏡 Ev Özellikleri</div>
+                            <div class="card-title"> Ev Özellikleri</div>
                         </div>
                         <div class="card-body">
                             <div class="grid-2" style="gap:16px;">
@@ -216,7 +215,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
                         <div class="card-footer" style="display:flex;gap:12px;justify-content:flex-end;">
                             <a href="list" class="btn btn-ghost">İptal</a>
-                            <button type="submit" class="btn btn-primary">🏠 Evi Kaydet</button>
+                            <button type="submit" class="btn btn-primary">  Evi Kaydet</button>
                         </div>
                     </form>
                 </div>
@@ -224,8 +223,10 @@ $initials = strtoupper(substr($user['name'], 0, 1));
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
 
-// Giriş gerekmez — herkese açık
+// Giriş gerekmez  -  herkese açık
 if (session_status() === PHP_SESSION_NONE)
     session_start();
 
@@ -16,9 +16,13 @@ $cities = getCities();
 $search = trim($_GET['q'] ?? '');
 $catSlug = trim($_GET['cat'] ?? '');
 $city = trim($_GET['city'] ?? '');
+$district = trim($_GET['district'] ?? '');
 $minPrice = (int)($_GET['min_price'] ?? 0);
 $maxPrice = (int)($_GET['max_price'] ?? 0);
 $dateFrom = trim($_GET['date_from'] ?? '');
+$minRating = max(0, min(5, (float) ($_GET['min_rating'] ?? 0)));
+$onlyRecurring = isset($_GET['only_recurring']) ? 1 : 0;
+$onlyUrgent = isset($_GET['only_urgent']) ? 1 : 0;
 $sortBy = trim($_GET['sort'] ?? 'newest');
 $catId = 0;
 if ($catSlug) {
@@ -51,6 +55,10 @@ if ($city) {
     $where[] = "h.city = ?";
     $params[] = $city;
 }
+if ($district) {
+    $where[] = "h.district LIKE ?";
+    $params[] = "%$district%";
+}
 if ($minPrice > 0) {
     $where[] = "l.budget >= ?";
     $params[] = $minPrice;
@@ -63,11 +71,22 @@ if ($dateFrom) {
     $where[] = "l.preferred_date >= ?";
     $params[] = $dateFrom;
 }
+if ($minRating > 0) {
+    $where[] = "u.rating >= ?";
+    $params[] = $minRating;
+}
+if ($onlyRecurring) {
+    $where[] = "COALESCE(l.is_recurring, 0) = 1";
+}
+if ($onlyUrgent) {
+    $where[] = "l.preferred_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)";
+}
 
 // Sıralama
 $orderBy = match($sortBy) {
-    'cheapest' => 'l.budget ASC',
-    'expensive' => 'l.budget DESC',
+    'best_price' => 'l.budget ASC',
+    'highest_price' => 'l.budget DESC',
+    'top_rated' => 'u.rating DESC, u.review_count DESC',
     'most_offers' => 'offer_count DESC',
     'soonest' => 'l.preferred_date ASC',
     default => 'l.created_at DESC',
@@ -83,7 +102,7 @@ $pages = (int) ceil($total / $perPage);
 $stmt = $db->prepare("
     SELECT l.*, c.name AS cat_name, c.icon AS cat_icon,
            u.name AS owner_name, u.rating AS owner_rating,
-           h.city, h.room_config, h.photo AS home_photo,
+           h.city, h.district, h.room_config, h.photo AS home_photo,
            (SELECT COUNT(*) FROM offers WHERE listing_id = l.id) AS offer_count
     FROM listings l
     JOIN categories c ON l.category_id = c.id
@@ -133,7 +152,7 @@ function buildUrl(array $extra = [], array $remove = []): string
         }
     }
     if ($city) {
-        $seoTitle .= ' — ' . e($city);
+        $seoTitle .= '  -  ' . e($city);
     }
     $seoTitle .= ' | Temizci Burada';
     // Canonical URL
@@ -151,8 +170,7 @@ function buildUrl(array $extra = [], array $remove = []): string
     <meta property="og:url" content="<?= $canonicalUrl ?>">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Temizci Burada">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -176,11 +194,11 @@ function buildUrl(array $extra = [], array $remove = []): string
                     <nav class="navbar scrolled" style="background:rgba(255,255,255,0.95);">
                         <div class="navbar-inner container">
                             <a href="../index" class="navbar-logo">
-                                <div class="logo-icon">🧹</div><span><span>Temizci Burada</span></span>
+                                <div class="logo-icon"></div><span><span>Temizci Burada</span></span>
                             </a>
                             <div class="navbar-nav"><a href="browse">İlanlar</a></div>
                             <div class="navbar-actions">
-                                <button class="theme-toggle-btn" id="themeToggle" title="Tema Değiştir">🌙</button><a href="../login" class="btn btn-outline btn-sm">Giriş
+                                <button class="theme-toggle-btn" id="themeToggle" title="Tema Değiştir"></button><a href="../login" class="btn btn-outline btn-sm">Giriş
                                     Yap</a><a href="../register" class="btn btn-primary btn-sm">Kayıt Ol</a></div>
                         </div>
                     </nav>
@@ -190,18 +208,17 @@ function buildUrl(array $extra = [], array $remove = []): string
 
                         <?= isset($flashShown) ? '' : flashHtml() ?>
 
-                        <div class="page-title">🔍 İlanları Gez</div>
+                        <div class="page-title"> İlanları Gez</div>
                         <div class="page-subtitle">
                             <?= $total ?> ilan bulundu
-                            <?= $search ? " — \"" . e($search) . "\"" : '' ?>
+                            <?= $search ? "  -  \"" . e($search) . "\"" : '' ?>
                         </div>
 
                         <!-- Arama / Filtre -->
-                        <form method="GET" class="search-bar">
+                        <form method="GET" class="search-bar" autocomplete="off">
                             <div class="form-group" style="flex:2;min-width:200px;">
                                 <label class="form-label">Arama</label>
-                                <input type="text" name="q" class="form-control" placeholder="İlan ara..."
-                                    value="<?= e($search) ?>">
+                                <input type="text" name="q" class="form-control" placeholder="İlan ara..." autocomplete="off" spellcheck="false" value="<?= e($search) ?>">
                             </div>
                             <div class="form-group" style="flex:1.2;">
                                 <label class="form-label">Kategori</label>
@@ -227,9 +244,9 @@ function buildUrl(array $extra = [], array $remove = []): string
                                 </select>
                             </div>
                             <div style="padding-top:22px;">
-                                <button type="submit" class="btn btn-primary">🔍 Ara</button>
-                                <?php if ($search || $catSlug || $city || $minPrice || $maxPrice || $dateFrom): ?>
-                                    <a href="browse" class="btn btn-ghost" style="margin-left:6px;">✕ Temizle</a>
+                                <button type="submit" class="btn btn-primary"> Ara</button>
+                                <?php if ($search || $catSlug || $city || $district || $minPrice || $maxPrice || $dateFrom || $minRating || $onlyRecurring || $onlyUrgent): ?>
+                                    <a href="browse" class="btn btn-ghost" style="margin-left:6px;"> Temizle</a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -237,11 +254,15 @@ function buildUrl(array $extra = [], array $remove = []): string
                         <!-- Gelişmiş Filtreler -->
                         <div style="margin-top:12px;">
                             <button onclick="document.getElementById('advFilters').style.display = document.getElementById('advFilters').style.display === 'none' ? 'flex' : 'none'" 
-                                style="background:none;border:none;color:var(--primary);font-size:0.85rem;font-weight:600;cursor:pointer;padding:0;">⚙️ Gelişmiş Filtreler <?= ($minPrice || $maxPrice || $dateFrom || $sortBy !== 'newest') ? '(aktif)' : '' ?></button>
-                            <form method="GET" id="advFilters" class="search-bar" style="display:<?= ($minPrice || $maxPrice || $dateFrom || $sortBy !== 'newest') ? 'flex' : 'none' ?>;margin-top:10px;">
+                                style="background:none;border:none;color:var(--primary);font-size:0.85rem;font-weight:600;cursor:pointer;padding:0;"> Gelişmiş Filtreler <?= ($district || $minPrice || $maxPrice || $dateFrom || $minRating || $onlyRecurring || $onlyUrgent || $sortBy !== 'newest') ? '(aktif)' : '' ?></button>
+                            <form method="GET" id="advFilters" class="search-bar" style="display:<?= ($district || $minPrice || $maxPrice || $dateFrom || $minRating || $onlyRecurring || $onlyUrgent || $sortBy !== 'newest') ? 'flex' : 'none' ?>;margin-top:10px;">
                                 <?php if ($search): ?><input type="hidden" name="q" value="<?= e($search) ?>"><?php endif; ?>
                                 <?php if ($catSlug): ?><input type="hidden" name="cat" value="<?= e($catSlug) ?>"><?php endif; ?>
                                 <?php if ($city): ?><input type="hidden" name="city" value="<?= e($city) ?>"><?php endif; ?>
+                                <div class="form-group" style="flex:1;">
+                                    <label class="form-label">İlçe</label>
+                                    <input type="text" name="district" class="form-control" placeholder="Örn: Kadıköy" value="<?= e($district) ?>">
+                                </div>
                                 <div class="form-group" style="flex:1;">
                                     <label class="form-label">Min Bütçe (₺)</label>
                                     <input type="number" name="min_price" class="form-control" placeholder="0" value="<?= $minPrice ?: '' ?>" min="0">
@@ -254,15 +275,34 @@ function buildUrl(array $extra = [], array $remove = []): string
                                     <label class="form-label">Tarihten İtibaren</label>
                                     <input type="date" name="date_from" class="form-control" value="<?= e($dateFrom) ?>">
                                 </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label class="form-label">Min Puan</label>
+                                    <select name="min_rating" class="form-control">
+                                        <option value="0" <?= $minRating <= 0 ? 'selected' : '' ?>>Farketmez</option>
+                                        <option value="3" <?= $minRating == 3.0 ? 'selected' : '' ?>>3.0+</option>
+                                        <option value="3.5" <?= $minRating == 3.5 ? 'selected' : '' ?>>3.5+</option>
+                                        <option value="4" <?= $minRating == 4.0 ? 'selected' : '' ?>>4.0+</option>
+                                        <option value="4.5" <?= $minRating == 4.5 ? 'selected' : '' ?>>4.5+</option>
+                                    </select>
+                                </div>
                                 <div class="form-group" style="flex:1.2;">
                                     <label class="form-label">Sırala</label>
                                     <select name="sort" class="form-control">
-                                        <option value="newest" <?= $sortBy === 'newest' ? 'selected' : '' ?>>🕐 En Yeni</option>
-                                        <option value="cheapest" <?= $sortBy === 'cheapest' ? 'selected' : '' ?>>💰 En Ucuz</option>
-                                        <option value="expensive" <?= $sortBy === 'expensive' ? 'selected' : '' ?>>💎 En Pahalı</option>
-                                        <option value="most_offers" <?= $sortBy === 'most_offers' ? 'selected' : '' ?>>🔥 En Çok Teklif</option>
-                                        <option value="soonest" <?= $sortBy === 'soonest' ? 'selected' : '' ?>>📅 En Yakın Tarih</option>
+                                        <option value="newest" <?= $sortBy === 'newest' ? 'selected' : '' ?>> En Yeni</option>
+                                        <option value="best_price" <?= $sortBy === 'best_price' ? 'selected' : '' ?>> En Uygun</option>
+                                        <option value="highest_price" <?= $sortBy === 'highest_price' ? 'selected' : '' ?>> En Yüksek Bütçe</option>
+                                        <option value="top_rated" <?= $sortBy === 'top_rated' ? 'selected' : '' ?>> En Yüksek Puanlı Ev Sahibi</option>
+                                        <option value="most_offers" <?= $sortBy === 'most_offers' ? 'selected' : '' ?>> En Çok Teklif</option>
+                                        <option value="soonest" <?= $sortBy === 'soonest' ? 'selected' : '' ?>> En Yakın Tarih</option>
                                     </select>
+                                </div>
+                                <div class="form-group" style="display:flex;align-items:end;gap:12px;min-width:230px;">
+                                    <label style="display:flex;align-items:center;gap:6px;font-size:0.86rem;margin-bottom:10px;">
+                                        <input type="checkbox" name="only_urgent" value="1" <?= $onlyUrgent ? 'checked' : '' ?>> Sadece acil (48 saat)
+                                    </label>
+                                    <label style="display:flex;align-items:center;gap:6px;font-size:0.86rem;margin-bottom:10px;">
+                                        <input type="checkbox" name="only_recurring" value="1" <?= $onlyRecurring ? 'checked' : '' ?>> Sadece periyodik
+                                    </label>
                                 </div>
                                 <div style="padding-top:22px;">
                                     <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
@@ -271,21 +311,44 @@ function buildUrl(array $extra = [], array $remove = []): string
                         </div>
 
                         <!-- Aktif Filtreler -->
-                        <?php if ($catId || $city): ?>
+                        <?php if ($catId || $city || $district || $minRating || $onlyRecurring || $onlyUrgent): ?>
                             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
                                 <?php foreach ($categories as $c):
                                     if ($c['id'] == $catId): ?>
                                         <a href="<?= buildUrl(remove: ['cat']) ?>" class="badge badge-closed"
                                             style="padding:6px 14px;font-size:0.82rem;">
                                             <?= $c['icon'] ?>
-                                            <?= e($c['name']) ?> ✕
+                                            <?= e($c['name']) ?> 
                                         </a>
                                     <?php endif; endforeach; ?>
                                 <?php if ($city): ?>
                                     <a href="<?= buildUrl(remove: ['city']) ?>" class="badge badge-open"
                                         style="padding:6px 14px;font-size:0.82rem;">
-                                        📍
-                                        <?= e($city) ?> ✕
+                                        <?= e($city) ?> 
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($district): ?>
+                                    <a href="<?= buildUrl(remove: ['district']) ?>" class="badge"
+                                        style="padding:6px 14px;font-size:0.82rem;">
+                                        İlçe: <?= e($district) ?> 
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($minRating > 0): ?>
+                                    <a href="<?= buildUrl(remove: ['min_rating']) ?>" class="badge"
+                                        style="padding:6px 14px;font-size:0.82rem;">
+                                        Min puan: <?= number_format($minRating, 1) ?>+ 
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($onlyUrgent): ?>
+                                    <a href="<?= buildUrl(remove: ['only_urgent']) ?>" class="badge"
+                                        style="padding:6px 14px;font-size:0.82rem;">
+                                        Acil 
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($onlyRecurring): ?>
+                                    <a href="<?= buildUrl(remove: ['only_recurring']) ?>" class="badge"
+                                        style="padding:6px 14px;font-size:0.82rem;">
+                                        Periyodik 
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -295,7 +358,7 @@ function buildUrl(array $extra = [], array $remove = []): string
                         <?php if (empty($listings)): ?>
                             <div class="card">
                                 <div class="empty-state">
-                                    <div class="empty-state-icon">🔍</div>
+                                    <div class="empty-state-icon"></div>
                                     <h3>İlan bulunamadı</h3>
                                     <p>Arama kriterlerinizi değiştirerek tekrar deneyin.</p>
                                     <a href="browse" class="btn btn-primary">Tüm İlanları Gör</a>
@@ -321,17 +384,25 @@ function buildUrl(array $extra = [], array $remove = []): string
                                                 <?= e($l['title']) ?>
                                             </div>
                                             <div class="listing-meta">
-                                                <span>📍
+                                                <span>
                                                     <?= e($l['city']) ?>
                                                 </span>
-                                                <span>🏠
+                                                <?php if (!empty($l['district'])): ?>
+                                                    <span>
+                                                        <?= e($l['district']) ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                                <span> 
                                                     <?= e($l['room_config']) ?>
                                                 </span>
-                                                <span>📅
+                                                <span>
                                                     <?= date('d M Y', strtotime($l['preferred_date'])) ?>
                                                 </span>
-                                                <span>💬
+                                                <span>
                                                     <?= $l['offer_count'] ?> teklif
+                                                </span>
+                                                <span>
+                                                    <?= $l['owner_rating'] ? number_format((float) $l['owner_rating'], 1) . '/5 ev sahibi puanı' : 'Yeni ev sahibi' ?>
                                                 </span>
                                             </div>
                                             <p
@@ -346,8 +417,7 @@ function buildUrl(array $extra = [], array $remove = []): string
                                                 <?php else: ?>
                                                     <span style="font-size:0.82rem;color:var(--text-muted);">Bütçe açık</span>
                                                 <?php endif; ?>
-                                                <a href="detail?id=<?= $l['id'] ?>" class="btn btn-primary btn-sm">Teklif
-                                                    Ver →</a>
+                                                <a href="detail?id=<?= $l['id'] ?>" class="btn btn-primary btn-sm">Teklif Ver</a>
                                             </div>
                                         </div>
                                     </div>
@@ -358,7 +428,7 @@ function buildUrl(array $extra = [], array $remove = []): string
                             <?php if ($pages > 1): ?>
                                 <div class="pagination">
                                     <?php if ($page > 1): ?>
-                                        <a href="<?= buildUrl(['page' => $page - 1]) ?>" class="page-btn">‹</a>
+                                        <a href="<?= buildUrl(['page' => $page - 1]) ?>" class="page-btn"><</a>
                                     <?php endif; ?>
                                     <?php for ($i = max(1, $page - 2); $i <= min($pages, $page + 2); $i++): ?>
                                         <a href="<?= buildUrl(['page' => $i]) ?>"
@@ -367,7 +437,7 @@ function buildUrl(array $extra = [], array $remove = []): string
                                         </a>
                                     <?php endfor; ?>
                                     <?php if ($page < $pages): ?>
-                                        <a href="<?= buildUrl(['page' => $page + 1]) ?>" class="page-btn">›</a>
+                                        <a href="<?= buildUrl(['page' => $page + 1]) ?>" class="page-btn">></a>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -383,8 +453,12 @@ function buildUrl(array $extra = [], array $remove = []): string
         <?php include '../includes/footer.php'; ?>
     <?php endif; ?>
 
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+
+
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -9,8 +9,41 @@ $user = currentUser();
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
 
+$db->exec("
+    CREATE TABLE IF NOT EXISTS xsupport_t1 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        status ENUM('open', 'in_progress', 'closed') DEFAULT 'open',
+        priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
+        admin_note TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_xsupport_t1_user (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+");
+
+$ticketColumns = $db->query("SHOW COLUMNS FROM xsupport_t1")->fetchAll(PDO::FETCH_COLUMN);
+if (!in_array('priority', $ticketColumns, true)) {
+    $db->exec("ALTER TABLE xsupport_t1 ADD COLUMN priority ENUM('low', 'normal', 'high') DEFAULT 'normal' AFTER status");
+}
+if (!in_array('admin_note', $ticketColumns, true)) {
+    $db->exec("ALTER TABLE xsupport_t1 ADD COLUMN admin_note TEXT NULL AFTER priority");
+}
+
+$db->exec("
+    CREATE TABLE IF NOT EXISTS xsupport_m1 (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ticket_id INT NOT NULL,
+        sender_id INT NOT NULL,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_xsupport_m1_ticket (ticket_id),
+        KEY idx_xsupport_m1_sender (sender_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+");
+
 // Bileti getir (kullanıcıya ait mi kontrol et)
-$stmt = $db->prepare("SELECT * FROM tickets WHERE id = ? AND user_id = ?");
+$stmt = $db->prepare("SELECT * FROM xsupport_t1 WHERE id = ? AND user_id = ?");
 $stmt->execute([$id, $user['id']]);
 $ticket = $stmt->fetch();
 
@@ -21,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $ticket
     if (verifyCsrf()) {
         $message = trim($_POST['message']);
         if ($message) {
-            $db->prepare("INSERT INTO ticket_messages (ticket_id, sender_id, message) VALUES (?, ?, ?)")->execute([$id, $user['id'], $message]);
+            $db->prepare("INSERT INTO xsupport_m1 (ticket_id, sender_id, message) VALUES (?, ?, ?)")->execute([$id, $user['id'], $message]);
             setFlash('success', 'Yanıtınız eklendi.');
             redirect('ticket_detail?id=' . $id);
         }
@@ -29,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $ticket
 }
 
 // Mesajları getir
-$msgStmt = $db->prepare("SELECT tm.*, u.name AS sender_name, u.role FROM ticket_messages tm JOIN users u ON tm.sender_id = u.id WHERE tm.ticket_id = ? ORDER BY tm.created_at ASC");
+$msgStmt = $db->prepare("SELECT tm.*, u.name AS sender_name, u.role FROM xsupport_m1 tm JOIN users u ON tm.sender_id = u.id WHERE tm.ticket_id = ? ORDER BY tm.created_at ASC");
 $msgStmt->execute([$id]);
 $messages = $msgStmt->fetchAll();
 
@@ -40,9 +73,8 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destek Talebi #<?= $id ?> — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <title>Destek Talebi #<?= $id ?>  -  Temizci Burada</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
 </head>
@@ -56,12 +88,15 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                 <?= flashHtml() ?>
                 <div style="margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;">
                     <div>
-                        <a href="destek" style="color:var(--text-muted); font-size:0.85rem; text-decoration:none;">← Geri Dön</a>
+                        <a href="destek" style="color:var(--text-muted); font-size:0.85rem; text-decoration:none;">â† Geri Dön</a>
                         <h1 class="page-title" style="margin-top:10px;">#<?= $id ?> - <?= e($ticket['subject']) ?></h1>
                     </div>
                     <div>
                         <span class="badge <?= $ticket['status'] === 'open' ? 'badge-open' : ($ticket['status'] == 'in_progress' ? 'badge-progress' : 'badge-closed') ?>">
                             <?= $ticket['status'] === 'open' ? 'Açık' : ($ticket['status'] === 'in_progress' ? 'İşlemde' : 'Kapandı') ?>
+                        </span>
+                        <span class="badge <?= ($ticket['priority'] ?? 'normal') === 'high' ? 'badge-closed' : ((($ticket['priority'] ?? 'normal') === 'low') ? 'badge-open' : 'badge-progress') ?>" style="margin-left:6px;">
+                            Öncelik: <?= ($ticket['priority'] ?? 'normal') === 'high' ? 'Yüksek' : ((($ticket['priority'] ?? 'normal') === 'low') ? 'Düşük' : 'Normal') ?>
                         </span>
                     </div>
                 </div>
@@ -101,7 +136,10 @@ $initials = strtoupper(substr($user['name'], 0, 1));
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
 </body>
 </html>
+
+
+

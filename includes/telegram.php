@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 // ============================================================
-// Temizci Burada — Telegram Bot Bildirimleri
+// Temizci Burada  -  Telegram Bot Bildirimleri
 // ============================================================
 // Telegram Bot API üzerinden bildirim gönderir.
 // Bot token'ı .env dosyasında TELEGRAM_BOT_TOKEN olarak ayarlayın.
@@ -61,7 +61,7 @@ function getUserTelegramId(int $userId): ?string
 }
 
 /**
- * Yeni teklif — Telegram bildirimi
+ * Yeni teklif  -  Telegram bildirimi
  */
 function telegramNotifyNewOffer(int $ownerId, string $workerName, string $price, string $listingTitle, int $listingId): void
 {
@@ -69,17 +69,17 @@ function telegramNotifyNewOffer(int $ownerId, string $workerName, string $price,
     if (!$chatId) return;
 
     $url = APP_URL . "/listings/detail?id={$listingId}";
-    $message = "🔔 <b>Yeni Teklif Geldi!</b>\n\n"
-        . "📋 İlan: <b>{$listingTitle}</b>\n"
-        . "👤 Teklif Veren: {$workerName}\n"
-        . "💰 Fiyat: <b>{$price}</b>\n\n"
-        . "🔗 <a href='{$url}'>Teklifi İncele →</a>";
+    $message = " <b>Yeni Teklif Geldi!</b>\n\n"
+        . " İlan: <b>{$listingTitle}</b>\n"
+        . " Teklif Veren: {$workerName}\n"
+        . " Fiyat: <b>{$price}</b>\n\n"
+        . " <a href='{$url}'>Teklifi İncele â†’</a>";
 
     sendTelegram($chatId, $message);
 }
 
 /**
- * Teklif kabul — Telegram bildirimi
+ * Teklif kabul  -  Telegram bildirimi
  */
 function telegramNotifyOfferAccepted(int $workerId, string $listingTitle, int $listingId): void
 {
@@ -87,16 +87,16 @@ function telegramNotifyOfferAccepted(int $workerId, string $listingTitle, int $l
     if (!$chatId) return;
 
     $url = APP_URL . "/listings/detail?id={$listingId}";
-    $message = "✅ <b>Teklifiniz Kabul Edildi!</b>\n\n"
-        . "📋 İlan: <b>{$listingTitle}</b>\n\n"
-        . "🎉 Tebrikler! İlan sahibi teklifinizi kabul etti.\n\n"
-        . "🔗 <a href='{$url}'>Detayları Gör →</a>";
+    $message = " <b>Teklifiniz Kabul Edildi!</b>\n\n"
+        . " İlan: <b>{$listingTitle}</b>\n\n"
+        . " Tebrikler! İlan sahibi teklifinizi kabul etti.\n\n"
+        . " <a href='{$url}'>Detayları Gör â†’</a>";
 
     sendTelegram($chatId, $message);
 }
 
 /**
- * Yeni mesaj — Telegram bildirimi
+ * Yeni mesaj  -  Telegram bildirimi
  */
 function telegramNotifyNewMessage(int $receiverId, string $senderName, string $preview): void
 {
@@ -105,16 +105,16 @@ function telegramNotifyNewMessage(int $receiverId, string $senderName, string $p
 
     $url = APP_URL . "/messages";
     $preview = mb_substr($preview, 0, 100);
-    $message = "💬 <b>Yeni Mesaj!</b>\n\n"
-        . "👤 Gönderen: <b>{$senderName}</b>\n"
-        . "📝 \"{$preview}\"\n\n"
-        . "🔗 <a href='{$url}'>Mesajı Oku →</a>";
+    $message = " <b>Yeni Mesaj!</b>\n\n"
+        . " Gönderen: <b>{$senderName}</b>\n"
+        . " \"{$preview}\"\n\n"
+        . " <a href='{$url}'>Mesajı Oku →</a>";
 
     sendTelegram($chatId, $message);
 }
 
 /**
- * İş tamamlandı — Telegram bildirimi
+ * İş tamamlandı  -  Telegram bildirimi
  */
 function telegramNotifyJobCompleted(int $workerId, string $listingTitle, int $rating): void
 {
@@ -122,10 +122,11 @@ function telegramNotifyJobCompleted(int $workerId, string $listingTitle, int $ra
     if (!$chatId) return;
 
     $stars = str_repeat('⭐', $rating);
-    $message = "🏆 <b>İş Tamamlandı!</b>\n\n"
-        . "📋 İlan: <b>{$listingTitle}</b>\n"
-        . "📊 Puanınız: {$stars} ({$rating}/5)\n\n"
-        . "Harika iş çıkardınız! 🎉";
+    $message = " <b>İş Tamamlandı!</b>\n\n"
+        . " İlan: <b>{$listingTitle}</b>\n"
+        . " Puanınız: {$stars} ({$rating}/5)\n\n"
+        . "Harika iş çıkardınız!";
 
     sendTelegram($chatId, $message);
 }
+

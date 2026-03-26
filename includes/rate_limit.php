@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 // ============================================================
-// Temizci Burada — Siber Güvenlik: Rate Limiter + Brute Force
+// Temizci Burada  -  Siber Güvenlik: Rate Limiter + Brute Force
 // ============================================================
 
 require_once __DIR__ . '/db.php';
@@ -25,7 +25,7 @@ function ensureLoginAttemptsTable(): void
 }
 
 /**
- * Brute force koruması: 5 başarısız giriş → 15 dakika kilit
+ * Brute force koruması: 5 başarısız giriş â†’ 15 dakika kilit
  */
 function checkLoginAttempts(string $ip, string $email): bool
 {
@@ -140,3 +140,4 @@ function getUserIP(): string
     }
     return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
+

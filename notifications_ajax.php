@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
@@ -43,11 +43,18 @@ $notifs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($notifs as &$n) {
     $n['time_ago'] = timeAgo($n['created_at']);
     $typeIcons = [
-        'new_offer' => '💰',
+        'new_offer' => '📩',
         'offer_accepted' => '✅',
         'offer_rejected' => '❌',
         'review' => '⭐',
         'message' => '💬',
+        'favorite_added' => '❤️',
+        'favorite_update' => '🔔',
+        'counter_offer' => '💸',
+        'counter_accepted' => '✅',
+        'counter_rejected' => '❌',
+        'completion_requested' => '📷',
+        'completion_confirmed' => '🏁',
         'system' => 'ℹ️',
     ];
     $n['icon'] = $typeIcons[$n['type']] ?? '🔔';
@@ -63,3 +70,4 @@ echo json_encode([
     'unread_count' => $unreadCount,
     'notifications' => $notifs
 ]);
+

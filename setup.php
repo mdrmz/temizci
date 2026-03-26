@@ -1,304 +1,262 @@
 <?php
-// ============================================================
-// Temizci Burada — Geliştirici Kurulum Sayfası
-// Kullanım: http://localhost/Temizlik_Burda/setup.php
-// Production'da bu dosyayı SİLİN!
-// ============================================================
-
 require_once 'includes/config.php';
 require_once 'includes/db.php';
 
 $message = '';
 $error = '';
 
+function ensureCoreTables(PDO $db): void
+{
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS login_attempts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ip_address VARCHAR(45) NOT NULL,
+            email VARCHAR(150) NOT NULL,
+            attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_ip_email (ip_address, email),
+            INDEX idx_attempted_at (attempted_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS api_tokens (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            token VARCHAR(255) UNIQUE NOT NULL,
+            expires_at DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            sender_id INT NOT NULL,
+            receiver_id INT NOT NULL,
+            listing_id INT DEFAULT NULL,
+            message TEXT NOT NULL,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_sender (sender_id),
+            INDEX idx_receiver (receiver_id),
+            INDEX idx_listing (listing_id),
+            CONSTRAINT fk_messages_sender FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_messages_receiver FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_messages_listing FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS availability (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            available_date DATE NOT NULL,
+            time_slot ENUM('sabah','ogle','aksam','tum_gun') DEFAULT 'tum_gun',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY user_date_slot (user_id, available_date, time_slot),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS favorites (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            listing_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_fav (user_id, listing_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    try {
+        $db->exec("ALTER TABLE users MODIFY COLUMN role ENUM('homeowner','worker','admin') DEFAULT 'homeowner'");
+    } catch (Exception $e) {
+    }
+    try {
+        $db->exec("ALTER TABLE users ADD COLUMN session_version INT NOT NULL DEFAULT 0");
+    } catch (Exception $e) {
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $db = getDB();
+    try {
+        $db = getDB();
+        ensureCoreTables($db);
+        $action = $_POST['action'];
 
-    if ($_POST['action'] === 'create_users') {
-        try {
-            // login_attempts tablosu – yoksa oluştur
-            $db->exec("CREATE TABLE IF NOT EXISTS login_attempts (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                ip_address VARCHAR(45) NOT NULL,
-                email VARCHAR(150) NOT NULL,
-                attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_ip_email (ip_address, email),
-                INDEX idx_attempted_at (attempted_at)
-            )");
-
-            // api_tokens tablosu – yoksa oluştur
-            $db->exec("CREATE TABLE IF NOT EXISTS api_tokens (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NOT NULL,
-                token VARCHAR(255) UNIQUE NOT NULL,
-                expires_at DATETIME NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            )");
-
+        if ($action === 'create_users') {
             $pass = password_hash('Test123!', PASSWORD_DEFAULT);
 
-            // Ev sahibi
             $s = $db->prepare("SELECT id FROM users WHERE email = ?");
             $s->execute(['evsahibi@test.com']);
             if (!$s->fetch()) {
                 $db->prepare("INSERT INTO users (name, email, phone, password, role, city, bio, is_active)
                     VALUES (?,?,?,?,?,?,?,1)")
-                    ->execute(['Ayşe Kara', 'evsahibi@test.com', '05001234567', $pass, 'homeowner', 'İstanbul', 'Test ev sahibi hesabı.']);
+                    ->execute(['Ayse Kara', 'evsahibi@test.com', '05001234567', $pass, 'homeowner', 'Istanbul', 'Test ev sahibi hesabi.']);
             }
 
-            // Temizlikçi
             $s->execute(['temizlikci@test.com']);
             if (!$s->fetch()) {
                 $db->prepare("INSERT INTO users (name, email, phone, password, role, city, bio, rating, review_count, is_active)
                     VALUES (?,?,?,?,?,?,?,4.80,12,1)")
-                    ->execute(['Mehmet Yılmaz', 'temizlikci@test.com', '05359876543', $pass, 'worker', 'İstanbul', 'Test temizlikçi hesabı. 10 yıl deneyim.']);
+                    ->execute(['Mehmet Yilmaz', 'temizlikci@test.com', '05359876543', $pass, 'worker', 'Istanbul', 'Test temizlikci hesabi.']);
             }
 
-            // Ev sahibinin evi
-            $uid = $db->query("SELECT id FROM users WHERE email='evsahibi@test.com'")->fetchColumn();
+            $uid = (int) $db->query("SELECT id FROM users WHERE email='evsahibi@test.com'")->fetchColumn();
             $hid = $db->query("SELECT id FROM homes WHERE user_id=$uid LIMIT 1")->fetchColumn();
             if (!$hid) {
                 $db->prepare("INSERT INTO homes (user_id,title,address,district,city,room_config,floor,has_elevator,bathroom_count,sqm,is_active)
                     VALUES (?,?,?,?,?,?,?,?,?,?,1)")
-                    ->execute([$uid, '3+1 Dairem', 'Moda Cad. No:15', 'Kadıköy', 'İstanbul', '3+1', 4, 1, 1, 110]);
+                    ->execute([$uid, '3+1 Dairem', 'Moda Cad. No:15', 'Kadikoy', 'Istanbul', '3+1', 4, 1, 1, 110]);
                 $hid = $db->lastInsertId();
             }
 
-            // Test ilan
             $lid = $db->query("SELECT id FROM listings WHERE user_id=$uid LIMIT 1")->fetchColumn();
             if (!$lid) {
                 $db->prepare("INSERT INTO listings (user_id,home_id,category_id,title,description,preferred_date,preferred_time,budget,status)
                     VALUES (?,?,?,?,?,DATE_ADD(CURDATE(),INTERVAL 3 DAY),?,?,?)")
-                    ->execute([$uid, $hid, 1, 'Bahar Temizliği - 3+1', 'Kadıköyde 110m2 daire.', null, 'sabah', 350, 'open']);
+                    ->execute([$uid, $hid, 1, 'Bahar Temizligi - 3+1', 'Kadikoyde 110m2 daire.', 'sabah', 350, 'open']);
             }
 
-            $message = '✅ Test kullanıcıları ve veriler oluşturuldu!';
-        } catch (Exception $e) {
-            $error = '❌ Hata: ' . $e->getMessage();
+            $message = 'Test kullanicilari hazirlandi.';
         }
-    }
 
-    if ($_POST['action'] === 'test_api') {
-        $email = $_POST['email'] ?? '';
-        $pass = $_POST['pass'] ?? '';
-        $db2 = getDB();
-        $stmt = $db2->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-        if ($user) {
-            $valid = password_verify($pass, $user['password']);
-            $message = $valid
-                ? "✅ Kullanıcı bulundu ve şifre DOĞRU. Rol: {$user['role']}"
-                : "❌ Kullanıcı bulundu ama şifre YANLIŞ.";
-        } else {
-            $error = "❌ {$email} adresiyle kayıtlı kullanıcı bulunamadı.";
+        if ($action === 'create_admin') {
+            $adminName = trim($_POST['admin_name'] ?? 'Site Admin');
+            $adminEmail = trim($_POST['admin_email'] ?? '');
+            $adminPass = $_POST['admin_pass'] ?? '';
+
+            if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('Gecerli bir admin e-postasi girin.');
+            }
+            if (strlen($adminPass) < 6) {
+                throw new Exception('Admin sifresi en az 6 karakter olmali.');
+            }
+
+            $hash = password_hash($adminPass, PASSWORD_DEFAULT);
+            $chk = $db->prepare("SELECT id FROM users WHERE email = ?");
+            $chk->execute([$adminEmail]);
+            $existingId = $chk->fetchColumn();
+
+            if ($existingId) {
+                $db->prepare("UPDATE users SET name=?, password=?, role='admin', is_active=1 WHERE id=?")
+                    ->execute([$adminName, $hash, $existingId]);
+                $message = 'Mevcut kullanici admin olarak guncellendi.';
+            } else {
+                $db->prepare("INSERT INTO users (name, email, phone, password, role, city, bio, is_active)
+                    VALUES (?,?,?,?,?,?,?,1)")
+                    ->execute([$adminName, $adminEmail, '', $hash, 'admin', 'Istanbul', 'Sistem yoneticisi']);
+                $message = 'Yeni admin kullanici olusturuldu.';
+            }
         }
+
+        if ($action === 'test_api') {
+            $email = $_POST['email'] ?? '';
+            $pass = $_POST['pass'] ?? '';
+            $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $u = $stmt->fetch();
+            if ($u) {
+                $valid = password_verify($pass, $u['password']);
+                $message = $valid
+                    ? "Kullanici bulundu, sifre dogru. Rol: {$u['role']}"
+                    : "Kullanici bulundu ama sifre yanlis.";
+            } else {
+                $error = 'Bu e-posta ile kayitli kullanici bulunamadi.';
+            }
+        }
+    } catch (Exception $e) {
+        $error = $e->getMessage();
     }
 }
 
 $db2 = getDB();
-$users = $db2->query("SELECT id, name, email, role, city, is_active FROM users ORDER BY id DESC LIMIT 10")->fetchAll();
-$apUrl = 'http://10.0.2.2/Temizlik_Burda/api/auth/login.php';
+ensureCoreTables($db2);
+$users = $db2->query("SELECT id, name, email, role, city, is_active FROM users ORDER BY id DESC LIMIT 20")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
-    <title>Setup — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup - Temizci Burada</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-
-        body {
-            font-family: Inter, sans-serif;
-            background: #f5f5ff;
-            padding: 32px;
-            color: #1a1a2e
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .08)
-        }
-
-        h1 {
-            color: #6C63FF;
-            margin-bottom: 4px
-        }
-
-        h2 {
-            font-size: 1.1rem;
-            margin-bottom: 14px;
-            color: #374151
-        }
-
-        .btn {
-            background: #6C63FF;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: .9rem;
-            font-weight: 600
-        }
-
-        .btn-green {
-            background: #00C9A7
-        }
-
-        .success {
-            background: #dcfce7;
-            color: #166534;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-weight: 600
-        }
-
-        .err {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .85rem
-        }
-
-        th,
-        td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb
-        }
-
-        th {
-            background: #f9f9ff;
-            font-weight: 700
-        }
-
-        input {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 8px 12px;
-            width: 100%;
-            margin-bottom: 10px
-        }
-
-        .warn {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: .85rem;
-            margin-bottom: 16px
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f5f6fb; padding: 24px; color: #1f2937; }
+        .card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+        h1 { margin-bottom: 6px; }
+        h2 { margin-bottom: 12px; font-size: 1.05rem; }
+        .ok { background: #e8f9ee; color: #135c2b; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+        .err { background: #feecec; color: #8c1d1d; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+        input { width: 100%; padding: 9px 10px; border: 1px solid #d5dae3; border-radius: 8px; margin-bottom: 10px; }
+        .btn { border: none; padding: 10px 14px; border-radius: 8px; background: #1f4b66; color: #fff; font-weight: 700; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        th, td { border-bottom: 1px solid #eceff4; padding: 8px 10px; text-align: left; }
+        th { background: #f7f9fc; }
     </style>
-
-    <!-- SEO & Favicon -->
-    <link rel="icon" href="/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/logo.png">
-    <meta property="og:image" content="https://www.temizciburada.com/logo.png">
 </head>
-
 <body>
-    <h1>🧹 Temizci Burada — Geliştirici Setup</h1>
-    <p style="color:#6b7280;margin:8px 0 24px">Bu sayfa sadece geliştirme ortamı içindir. Production'da silin.</p>
+    <h1>Temizci Burada Setup</h1>
+    <p style="margin:8px 0 18px;color:#6b7280;">Bu sayfa sadece gelistirme ortami icindir.</p>
 
-    <div class="warn">⚠️ Flutter URL: <code><?= $apUrl ?></code> — Emülatörde <code>10.0.2.2</code> = bilgisayarın
-        localhost'u</div>
-
-    <?php if ($message): ?>
-        <div class="success">
-            <?= $message ?>
-        </div>
-    <?php endif; ?>
-    <?php if ($error): ?>
-        <div class="err">
-            <?= $error ?>
-        </div>
-    <?php endif; ?>
+    <?php if ($message): ?><div class="ok"><?= htmlspecialchars($message) ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="err"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
     <div class="card">
-        <h2>1. Test Kullanıcıları Oluştur</h2>
+        <h2>1) Test Kullanicilarini Olustur</h2>
         <form method="POST">
             <input type="hidden" name="action" value="create_users">
-            <p style="font-size:.9rem;color:#374151;margin-bottom:14px">
-                Şifre: <strong>Test123!</strong><br>
-                Ev sahibi: <strong>evsahibi@test.com</strong><br>
-                Temizlikçi: <strong>temizlikci@test.com</strong>
+            <p style="margin-bottom:10px;font-size:.9rem;color:#6b7280;">
+                Sifre: <strong>Test123!</strong><br>
+                evsahibi@test.com / temizlikci@test.com
             </p>
-            <button type="submit" class="btn">Kullanıcıları Oluştur / Güncelle</button>
+            <button class="btn" type="submit">Olustur / Guncelle</button>
         </form>
     </div>
 
     <div class="card">
-        <h2>2. Giriş Test Et (API debug)</h2>
+        <h2>2) Admin Hesabi Olustur</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="create_admin">
+            <input type="text" name="admin_name" placeholder="Admin ad soyad" value="Site Admin">
+            <input type="email" name="admin_email" placeholder="admin@temizciburada.com" value="admin@temizciburada.com">
+            <input type="text" name="admin_pass" placeholder="Admin sifresi (min 6)" value="Admin123!">
+            <button class="btn" type="submit">Admin Hazirla</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>3) Login Test</h2>
         <form method="POST">
             <input type="hidden" name="action" value="test_api">
-            <input type="email" name="email" placeholder="E-posta" value="evsahibi@test.com">
-            <input type="text" name="pass" placeholder="Şifre" value="Test123!">
-            <button type="submit" class="btn btn-green">Test Et</button>
+            <input type="email" name="email" placeholder="E-posta" value="admin@temizciburada.com">
+            <input type="text" name="pass" placeholder="Sifre" value="Admin123!">
+            <button class="btn" type="submit">Test Et</button>
         </form>
     </div>
 
     <div class="card">
-        <h2>3. Mevcut Kullanıcılar</h2>
-        <?php if (empty($users)): ?>
-            <p style="color:#6b7280">Henüz kullanıcı yok.</p>
-        <?php else: ?>
-            <table>
-                <thead>
+        <h2>4) Son Kullanicilar</h2>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Ad</th><th>Email</th><th>Rol</th><th>Sehir</th><th>Aktif</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $u): ?>
                     <tr>
-                        <th>#</th>
-                        <th>Ad</th>
-                        <th>E-posta</th>
-                        <th>Rol</th>
-                        <th>Şehir</th>
-                        <th>Aktif</th>
+                        <td><?= (int) $u['id'] ?></td>
+                        <td><?= htmlspecialchars($u['name']) ?></td>
+                        <td><?= htmlspecialchars($u['email']) ?></td>
+                        <td><?= htmlspecialchars($u['role']) ?></td>
+                        <td><?= htmlspecialchars((string) $u['city']) ?></td>
+                        <td><?= (int) $u['is_active'] === 1 ? 'Evet' : 'Hayir' ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $u): ?>
-                        <tr>
-                            <td>
-                                <?= $u['id'] ?>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($u['name']) ?>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($u['email']) ?>
-                            </td>
-                            <td>
-                                <?= $u['role'] ?>
-                            </td>
-                            <td>
-                                <?= $u['city'] ?>
-                            </td>
-                            <td>
-                                <?= $u['is_active'] ? '✅' : '❌' ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </body>
-
 </html>

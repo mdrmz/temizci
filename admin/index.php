@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/includes/auth.php'; // Protects this file for admins only
 require_once __DIR__ . '/../includes/db.php';
 
@@ -25,9 +25,8 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Paneli — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Admin Paneli â€” Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
 </head>
@@ -37,31 +36,31 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
         <div class="main-content">
-            <?php $headerTitle = 'Genel Bakış'; include __DIR__ . '/includes/header.php'; ?>
+            <?php $headerTitle = 'Genel BakÄ±ÅŸ'; include __DIR__ . '/includes/header.php'; ?>
 
             <div class="page-content">
                 <div class="page-header" style="margin-bottom: 2rem;">
-                    <div class="page-title">Sistem İstatistikleri</div>
-                    <div class="page-subtitle">Sitenin güncel performansını ve yeni kullanıcıları buradan takip edebilirsiniz.</div>
+                    <div class="page-title">Sistem Ä°statistikleri</div>
+                    <div class="page-subtitle">Sitenin gÃ¼ncel performansÄ±nÄ± ve yeni kullanÄ±cÄ±larÄ± buradan takip edebilirsiniz.</div>
                 </div>
 
                 <div class="grid-4 mb-4">
                     <div class="stat-card" style="border-left: 4px solid #8b5cf6;">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
                             <div>
-                                <div class="stat-label">Toplam Kullanıcı</div>
+                                <div class="stat-label">Toplam KullanÄ±cÄ±</div>
                                 <div class="stat-value"><?= number_format($usersCount) ?></div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 10px; border-radius: 12px; font-size: 1.2rem;">👥</div>
+                            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 10px; border-radius: 12px; font-size: 1.2rem;">ğŸ‘¥</div>
                         </div>
                     </div>
                     <div class="stat-card" style="border-left: 4px solid #14b8a6;">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
                             <div>
-                                <div class="stat-label">Açılan İlan</div>
+                                <div class="stat-label">AÃ§Ä±lan Ä°lan</div>
                                 <div class="stat-value"><?= number_format($listingsCount) ?></div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(20, 184, 166, 0.1); color: #14b8a6; padding: 10px; border-radius: 12px; font-size: 1.2rem;">📋</div>
+                            <div class="stat-icon" style="background: rgba(20, 184, 166, 0.1); color: #14b8a6; padding: 10px; border-radius: 12px; font-size: 1.2rem;">ğŸ“‹</div>
                         </div>
                     </div>
                     <div class="stat-card" style="border-left: 4px solid #f59e0b;">
@@ -70,7 +69,7 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
                                 <div class="stat-label">Verilen Teklif</div>
                                 <div class="stat-value"><?= number_format($offersCount) ?></div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 10px; border-radius: 12px; font-size: 1.2rem;">💬</div>
+                            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 10px; border-radius: 12px; font-size: 1.2rem;">ğŸ’¬</div>
                         </div>
                     </div>
                     <div class="stat-card" style="border-left: 4px solid #ec4899;">
@@ -79,7 +78,7 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
                                 <div class="stat-label">Kategoriler</div>
                                 <div class="stat-value"><?= number_format($catsCount) ?></div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; padding: 10px; border-radius: 12px; font-size: 1.2rem;">🏷️</div>
+                            <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; padding: 10px; border-radius: 12px; font-size: 1.2rem;">ğŸ·ï¸</div>
                         </div>
                     </div>
                 </div>
@@ -87,16 +86,16 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
                 <!-- Recent Users -->
                 <div class="card" style="border-radius: 16px; overflow: hidden; border: 1px solid var(--border-light);">
                     <div class="card-header" style="padding: 20px; border-bottom: 1px solid var(--border-light); background: rgba(0,0,0,0.02);">
-                        <div class="card-title" style="font-weight: 700; font-size: 1.1rem;">Son Kayıt Olan Kullanıcılar</div>
+                        <div class="card-title" style="font-weight: 700; font-size: 1.1rem;">Son KayÄ±t Olan KullanÄ±cÄ±lar</div>
                     </div>
                     <div class="table-wrapper">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Kullanıcı</th>
+                                    <th>KullanÄ±cÄ±</th>
                                     <th>E-Posta</th>
                                     <th>Rol</th>
-                                    <th>Kayıt Tarihi</th>
+                                    <th>KayÄ±t Tarihi</th>
                                     <th>Profil</th>
                                 </tr>
                             </thead>
@@ -112,7 +111,7 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
                                     </td>
                                     <td style="font-size: 0.85rem; color: var(--text-muted);"><?= date('d.m.Y H:i', strtotime($ru['created_at'])) ?></td>
                                     <td>
-                                        <a href="users.php?id=<?= $ru['id'] ?>" class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">Yönet</a>
+                                        <a href="users.php?id=<?= $ru['id'] ?>" class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">YÃ¶net</a>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -125,7 +124,9 @@ $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users O
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 </html>
+
+

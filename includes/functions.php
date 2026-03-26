@@ -5,10 +5,39 @@
 
 require_once __DIR__ . '/db.php';
 
+function normalizeUtf8(string $str): string
+{
+    if ($str === '') {
+        return $str;
+    }
+
+    if (function_exists('mb_check_encoding') && !mb_check_encoding($str, 'UTF-8')) {
+        $str = mb_convert_encoding($str, 'UTF-8', 'Windows-1254,ISO-8859-9,ISO-8859-1,UTF-8');
+    }
+
+    // Recover common Turkish mojibake sequences.
+    $map = [
+        'Ã¼' => 'ü', 'Ãœ' => 'Ü',
+        'ÄŸ' => 'ğ', 'Äž' => 'Ğ',
+        'ÅŸ' => 'ş', 'Åž' => 'Ş',
+        'Ä±' => 'ı', 'Ä°' => 'İ',
+        'Ã¶' => 'ö', 'Ã–' => 'Ö',
+        'Ã§' => 'ç', 'Ã‡' => 'Ç',
+        'â‚º' => '₺',
+        'â€™' => "'",
+        'â€œ' => '"',
+        'â€' => '"',
+        'â€“' => '-',
+        'â€”' => '-',
+        'Â' => '',
+    ];
+    return strtr($str, $map);
+}
+
 // XSS korumalı çıktı
 function e(string $str): string
 {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(normalizeUtf8($str), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 // Yönlendirme
@@ -79,6 +108,17 @@ function incrementViewCount(int $listingId): void
 function createNotification(int $userId, string $type, string $message, string $link = ''): void
 {
     $db = getDB();
+    try {
+        $prefStmt = $db->prepare("SELECT notif_in_app FROM users WHERE id = ? LIMIT 1");
+        $prefStmt->execute([$userId]);
+        $inApp = (int) ($prefStmt->fetchColumn() ?? 1);
+        if ($inApp !== 1) {
+            return;
+        }
+    } catch (Exception $e) {
+        // Kolon yoksa varsayilan olarak bildirim olustur.
+    }
+
     $db->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?,?,?,?)")
         ->execute([$userId, $type, $message, $link]);
 }
@@ -263,3 +303,4 @@ function getCities(): array
         'Düzce'
     ];
 }
+

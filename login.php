@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -38,15 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($password, $user['password'])) {
-                    clearLoginAttempts($ip, $email); // Başarılı → temizle
-                    loginUser($user['id']);
+                    clearLoginAttempts($ip, $email); // Başarılı girişten sonra temizle
+                    loginUser($user['id'], (int) ($user['session_version'] ?? 0));
                     if ($remember) {
                         session_set_cookie_params(SESSION_LIFETIME);
                     }
                     setFlash('success', 'Hoş geldiniz, ' . $user['name'] . '!');
+                    if (($user['role'] ?? '') === 'admin') {
+                        redirect(APP_URL . '/admin/index');
+                    }
                     redirect(APP_URL . '/dashboard');
                 } else {
-                    recordFailedLogin($ip, $email); // Başarısız → kaydet
+                    recordFailedLogin($ip, $email); // Başarısız giriş denemesini kaydet
                     $db2 = getDB();
                     $stmt2 = $db2->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ? AND email = ? AND attempted_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
                     $stmt2->execute([$ip, $email]);
@@ -66,9 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Yap — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <title>Giriş Yap  -  Temizci Burada</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -81,13 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-page">
         <div class="auth-card">
             <div class="auth-logo">
-                <div class="logo-icon">🧹</div>
+                <div class="logo-icon"></div>
                 <h1>Tekrar Hoş Geldiniz</h1>
                 <p>Hesabınıza giriş yapın</p>
             </div>
 
             <?php if (!empty($errors)): ?>
-                <div class="flash flash-error">❌
+                <div class="flash flash-error">
                     <?= e(implode(' ', $errors)) ?>
                 </div>
             <?php endif; ?>
@@ -101,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Şifre</label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                    <input type="password" id="password" name="password" class="form-control" placeholder="********"
                         required>
                 </div>
                 <div class="flex-between mb-3">
@@ -126,8 +128,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

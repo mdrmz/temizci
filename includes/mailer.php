@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 // ============================================================
-// Temizci Burada — E-posta Gönderme Yardımcısı
+// Temizci Burada  -  E-posta Gönderme Yardımcısı
 // ============================================================
 // PHP mail() fonksiyonu ile basit bildirim e-postaları gönderir.
 // Production'da SMTP kullanmak için bu dosyayı güncelleyebilirsiniz.
@@ -76,15 +76,15 @@ function notifyNewOffer(int $ownerId, string $workerName, string $price, string 
 
     $body = "
         <p>Merhaba <strong>{$owner['name']}</strong>,</p>
-        <p>📋 <strong>\"{$listingTitle}\"</strong> ilanınıza yeni bir teklif geldi!</p>
+        <p> <strong>\"{$listingTitle}\"</strong> ilanınıza yeni bir teklif geldi!</p>
         <div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin:16px 0;'>
-            <div style='font-weight:700;color:#166534;'>💰 Teklif: {$price}</div>
-            <div style='color:#15803d;font-size:0.88rem;margin-top:4px;'>👤 Teklif Veren: {$workerName}</div>
+            <div style='font-weight:700;color:#166534;'> Teklif: {$price}</div>
+            <div style='color:#15803d;font-size:0.88rem;margin-top:4px;'> Teklif Veren: {$workerName}</div>
         </div>
         <p>İlanınıza gelen teklifleri inceleyip, en uygununu seçebilirsiniz.</p>
     ";
     
-    sendMail($owner['email'], "Yeni Teklif: {$listingTitle}", $body, APP_URL . "/listings/detail?id={$listingId}", "Teklifi İncele →");
+    sendMail($owner['email'], "Yeni Teklif: {$listingTitle}", $body, APP_URL . "/listings/detail?id={$listingId}", "Teklifi İncele â†’");
 }
 
 /**
@@ -100,11 +100,11 @@ function notifyOfferAccepted(int $workerId, string $listingTitle, int $listingId
 
     $body = "
         <p>Merhaba <strong>{$worker['name']}</strong>,</p>
-        <p>🎉 Harika haber! <strong>\"{$listingTitle}\"</strong> ilanına verdiğiniz teklif <strong style='color:#059669;'>kabul edildi!</strong></p>
+        <p> Harika haber! <strong>\"{$listingTitle}\"</strong> ilanına verdiğiniz teklif <strong style='color:#059669;'>kabul edildi!</strong></p>
         <p>İlan sahibi ile iletişime geçerek işin detaylarını konuşabilirsiniz.</p>
     ";
     
-    sendMail($worker['email'], "✅ Teklifiniz Kabul Edildi!", $body, APP_URL . "/listings/detail?id={$listingId}", "Detayları Gör →");
+    sendMail($worker['email'], " Teklifiniz Kabul Edildi!", $body, APP_URL . "/listings/detail?id={$listingId}", "Detayları Gör â†’");
 }
 
 /**
@@ -120,11 +120,11 @@ function notifyNewMessage(int $receiverId, string $senderName): void
 
     $body = "
         <p>Merhaba <strong>{$receiver['name']}</strong>,</p>
-        <p>💬 <strong>{$senderName}</strong> size yeni bir mesaj gönderdi.</p>
+        <p> <strong>{$senderName}</strong> size yeni bir mesaj gönderdi.</p>
         <p>Mesajınızı okumak ve yanıtlamak için aşağıdaki butona tıklayın.</p>
     ";
     
-    sendMail($receiver['email'], "Yeni Mesaj: {$senderName}", $body, APP_URL . "/messages", "Mesajları Aç →");
+    sendMail($receiver['email'], "Yeni Mesaj: {$senderName}", $body, APP_URL . "/messages", "Mesajları Aç â†’");
 }
 
 /**
@@ -138,15 +138,16 @@ function notifyJobCompleted(int $workerId, string $listingTitle, int $rating): v
     $worker = $stmt->fetch();
     if (!$worker) return;
 
-    $stars = str_repeat('⭐', $rating);
+    $stars = str_repeat('â­', $rating);
     $body = "
         <p>Merhaba <strong>{$worker['name']}</strong>,</p>
-        <p>✅ <strong>\"{$listingTitle}\"</strong> işi tamamlandı ve size bir değerlendirme yapıldı!</p>
+        <p> <strong>\"{$listingTitle}\"</strong> işi tamamlandı ve size bir değerlendirme yapıldı!</p>
         <div style='background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:16px;margin:16px 0;text-align:center;'>
             <div style='font-size:1.5rem;'>{$stars}</div>
             <div style='font-weight:600;color:#92400e;margin-top:4px;'>{$rating}/5 Puan</div>
         </div>
     ";
     
-    sendMail($worker['email'], "İş Tamamlandı & Değerlendirme", $body, APP_URL . "/profile", "Profilimi Gör →");
+    sendMail($worker['email'], "İş Tamamlandı & Değerlendirme", $body, APP_URL . "/profile", "Profilimi Gör â†’");
 }
+

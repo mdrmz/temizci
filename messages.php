@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -8,18 +8,32 @@ requireLogin();
 $user = currentUser();
 $db = getDB();
 
-// Kullanıcının mesajlaştığı kişileri (sohbetleri) getir
+$db->exec("
+    CREATE TABLE IF NOT EXISTS tb_chat_messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sender_id INT NOT NULL,
+        receiver_id INT NOT NULL,
+        listing_id INT DEFAULT NULL,
+        message TEXT NOT NULL,
+        is_read TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_sender (sender_id),
+        INDEX idx_receiver (receiver_id),
+        INDEX idx_listing (listing_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+");
+
 $stmt = $db->prepare("
-    SELECT 
-        CASE 
-            WHEN m.sender_id = ? THEN m.receiver_id 
-            ELSE m.sender_id 
+    SELECT
+        CASE
+            WHEN m.sender_id = ? THEN m.receiver_id
+            ELSE m.sender_id
         END AS contact_id,
         MAX(m.created_at) AS last_message_date,
         u.name AS contact_name,
         u.avatar AS contact_avatar,
         SUM(CASE WHEN m.receiver_id = ? AND m.is_read = 0 THEN 1 ELSE 0 END) AS unread_count
-    FROM messages m
+    FROM tb_chat_messages m
     JOIN users u ON u.id = CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END
     WHERE m.sender_id = ? OR m.receiver_id = ?
     GROUP BY contact_id
@@ -28,205 +42,264 @@ $stmt = $db->prepare("
 $stmt->execute([$user['id'], $user['id'], $user['id'], $user['id'], $user['id']]);
 $conversations = $stmt->fetchAll();
 
-// Aktif sohbet ID
-$active_contact_id = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
-// Eğer aktif sohbet yoksa ve sohbet listesi doluysa, ilkini seç
-if (!$active_contact_id && count($conversations) > 0) {
-    $active_contact_id = $conversations[0]['contact_id'];
+$activeContactId = isset($_GET['uid']) ? (int) $_GET['uid'] : 0;
+if (!$activeContactId && count($conversations) > 0) {
+    $activeContactId = (int) $conversations[0]['contact_id'];
 }
 
 $messages = [];
-$active_contact = null;
+$activeContact = null;
 
-if ($active_contact_id > 0) {
-    // Mesajları getir
+if ($activeContactId > 0) {
     $stmt = $db->prepare("
-        SELECT m.*, s.name as sender_name 
-        FROM messages m
+        SELECT m.*, s.name as sender_name
+        FROM tb_chat_messages m
         JOIN users s ON m.sender_id = s.id
-        WHERE (m.sender_id = ? AND m.receiver_id = ?) 
+        WHERE (m.sender_id = ? AND m.receiver_id = ?)
            OR (m.sender_id = ? AND m.receiver_id = ?)
         ORDER BY m.created_at ASC
     ");
-    $stmt->execute([$user['id'], $active_contact_id, $active_contact_id, $user['id']]);
+    $stmt->execute([$user['id'], $activeContactId, $activeContactId, $user['id']]);
     $messages = $stmt->fetchAll();
 
-    // Aktif kişiyi getir
     $stmt = $db->prepare("SELECT id, name, avatar FROM users WHERE id = ?");
-    $stmt->execute([$active_contact_id]);
-    $active_contact = $stmt->fetch();
+    $stmt->execute([$activeContactId]);
+    $activeContact = $stmt->fetch();
 
-    // Okunmadı işaretlemesini kaldır
-    $db->prepare("UPDATE messages SET is_read = 1 WHERE receiver_id = ? AND sender_id = ? AND is_read = 0")->execute([$user['id'], $active_contact_id]);
-}
-
-// Mesaj Gönderme
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message_text']) && $active_contact_id > 0) {
-    if (!verifyCsrf()) {
-        die(json_encode(['status' => 'error', 'message' => 'Geçersiz CSRF']));
-    }
-    $message = trim($_POST['message_text']);
-    if (strlen($message) > 0) {
-        $db->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)")->execute([$user['id'], $active_contact_id, $message]);
-        
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            echo json_encode(['status' => 'success', 'timestamp' => date('H:i')]);
-            exit;
-        }
-        redirect(APP_URL . '/messages.php?uid=' . $active_contact_id);
-    }
+    $db->prepare("UPDATE tb_chat_messages SET is_read = 1 WHERE receiver_id = ? AND sender_id = ? AND is_read = 0")
+        ->execute([$user['id'], $activeContactId]);
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesajlarım — <?= APP_NAME ?></title>
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <title>Mesajlarım - <?= APP_NAME ?></title>
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
-    <style>
-        .chat-container { display: flex; height: 100%; background: #fff; overflow: hidden; margin: 0; border: none; border-radius: 0;}
-        .chat-sidebar { width: 320px; border-right: 1px solid var(--border); background: #fdfdfd; display:flex; flex-direction:column; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1rem; }
-        .contact-list { overflow-y: auto; flex:1; }
-        .contact-item { padding: 15px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; text-decoration: none; color: inherit; }
-        .contact-item:hover, .contact-item.active { background: #f0f0ff; }
-        .contact-avatar { width: 40px; height: 40px; background: var(--gradient); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .contact-info { flex: 1; overflow: hidden; }
-        .contact-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .unread-badge { background: #e11d48; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 700; }
-        
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #fafafa; }
-        .chat-header { padding: 15px 24px; border-bottom: 1px solid var(--border); background: #fff; display:flex; align-items:center; gap:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
-        .messages-list { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
-        .message-bubble { max-width: 70%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 0.95rem; position: relative; }
-        .message-sent { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
-        .message-received { align-self: flex-start; background: #fff; border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
-        .message-time { font-size: 0.7rem; margin-top: 4px; opacity: 0.7; text-align: right; }
-        .message-sent .message-time { color: rgba(255,255,255,0.8); }
-        .message-received .message-time { color: var(--text-muted); }
-        
-        .chat-input { padding: 20px; background: #fff; border-top: 1px solid var(--border); display:flex; gap: 12px; align-items: flex-end;}
-        .chat-input textarea { flex: 1; border: 1px solid var(--border); border-radius: 24px; padding: 12px 20px; font-family: inherit; resize: none; min-height: 48px; max-height: 120px; outline: none; }
-        .chat-input textarea:focus { border-color: var(--primary); }
-        .chat-input button { border-radius: 24px; padding: 0 24px; height: 48px; }
-
-        @media (max-width: 768px) {
-            .chat-container { flex-direction: column; height: 100%; }
-            .chat-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); height: 35vh; }
-            .chat-area { height: 65vh; }
-        }
-    </style>
-
-    <!-- SEO & Favicon -->
     <link rel="icon" href="/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/logo.png">
-    <meta property="og:image" content="https://www.temizciburada.com/logo.png">
 </head>
-<body class="bg-light">
-
+<body>
     <div class="app-layout">
-        <!-- ======== SIDEBAR ======== -->
         <?php include 'includes/sidebar.php'; ?>
 
-        <!-- ======== ANA İÇERİK ======== -->
         <div class="main-content">
-            <!-- Header -->
-            <div class="app-header">
-                <div style="display:flex;align-items:center;gap:14px;">
-                    <button class="hamburger" id="hamburger" aria-label="Menü">
-                        <span></span><span></span><span></span>
-                    </button>
-                    <div class="app-header-title">Mesajlarım</div>
-                </div>
-            </div>
+            <?php $headerTitle = 'Mesajlarım'; include 'includes/app-header.php'; ?>
 
-            <!-- Content -->
-            <div class="page-content" style="padding:0; height:calc(100vh - 72px); display:flex; flex-direction:column;">
-                <div class="chat-container">
-            <!-- Kişiler Listesi -->
-            <div class="chat-sidebar">
-                <div class="sidebar-header">Mesajlarım</div>
-                <div class="contact-list">
-                    <?php if (empty($conversations)): ?>
-                        <div class="text-center p-4 text-muted">Henüz hiç mesajınız yok.</div>
-                    <?php else: ?>
-                        <?php foreach($conversations as $c): ?>
-                            <a href="messages.php?uid=<?= $c['contact_id'] ?>" class="contact-item <?= ($c['contact_id'] == $active_contact_id) ? 'active' : '' ?>">
-                                <div class="contact-avatar"><?= mb_substr($c['contact_name'], 0, 1) ?></div>
-                                <div class="contact-info">
-                                    <div class="contact-name"><?= e($c['contact_name']) ?></div>
-                                    <div style="font-size:0.75rem;color:var(--text-muted);"><?= timeAgo($c['last_message_date']) ?></div>
+            <div class="page-content">
+                <div class="chat-shell">
+                    <aside class="chat-sidebar">
+                        <div class="chat-sidebar-head">Sohbetler</div>
+                        <div class="chat-contact-list">
+                            <?php if (empty($conversations)): ?>
+                                <div class="empty-state" style="padding:28px 14px;">
+                                    <p>Henüz mesajınız yok.</p>
                                 </div>
-                                <?php if($c['unread_count'] > 0): ?>
-                                    <div class="unread-badge"><?= $c['unread_count'] ?></div>
-                                <?php endif; ?>
-                            </a>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
+                            <?php else: ?>
+                                <?php foreach ($conversations as $c): ?>
+                                    <a href="messages.php?uid=<?= (int) $c['contact_id'] ?>"
+                                        class="chat-contact-item <?= ((int) $c['contact_id'] === $activeContactId) ? 'active' : '' ?>">
+                                        <div class="chat-contact-avatar"><?= mb_substr($c['contact_name'], 0, 1) ?></div>
+                                        <div>
+                                            <div class="chat-contact-name"><?= e($c['contact_name']) ?></div>
+                                            <div class="chat-contact-meta"><?= timeAgo($c['last_message_date']) ?></div>
+                                        </div>
+                                        <?php if ((int) $c['unread_count'] > 0): ?>
+                                            <div class="chat-unread"><?= (int) $c['unread_count'] ?></div>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </aside>
 
-            <!-- Mesajlaşma Alanı -->
-            <div class="chat-area">
-                <?php if ($active_contact): ?>
-                    <div class="chat-header">
-                        <div class="contact-avatar" style="width:36px;height:36px;font-size:0.9rem;"><?= mb_substr($active_contact['name'], 0, 1) ?></div>
-                        <div style="font-weight:700;"><?= e($active_contact['name']) ?></div>
-                    </div>
-                    
-                    <div class="messages-list" id="msg-list">
-                        <?php foreach($messages as $m): ?>
-                            <?php $isSent = ($m['sender_id'] == $user['id']); ?>
-                            <div class="message-bubble <?= $isSent ? 'message-sent' : 'message-received' ?>">
-                                <?= nl2br(e($m['message'])) ?>
-                                <div class="message-time"><?= date('H:i', strtotime($m['created_at'])) ?></div>
+                    <section class="chat-main">
+                        <?php if ($activeContact): ?>
+                            <div class="chat-main-head">
+                                <div class="chat-contact-avatar"><?= mb_substr($activeContact['name'], 0, 1) ?></div>
+                                <div class="chat-contact-name"><?= e($activeContact['name']) ?></div>
                             </div>
-                        <?php endforeach; ?>
-                        <?php if (empty($messages)): ?>
-                            <div class="text-center text-muted" style="margin:auto;">Henüz bu kişiyle mesajlaşmadınız. <br>İlk mesajı gönderin!</div>
-                        <?php endif; ?>
-                    </div>
 
-                    <form class="chat-input" id="chat-form" method="POST">
-                        <?= csrfField() ?>
-                        <textarea name="message_text" id="mText" placeholder="Mesajınızı yazın..." required></textarea>
-                        <button type="submit" class="btn btn-primary">Gönder</button>
-                    </form>
-                <?php else: ?>
-                    <div style="margin:auto;text-align:center;color:var(--text-muted);">
-                        <div style="font-size:3rem;opacity:0.2;margin-bottom:10px;">💬</div>
-                        Sohbete başlamak için soldan bir kişi seçin.
-                    </div>
-                <?php endif; ?>
+                            <div class="chat-messages" id="msg-list">
+                                <?php if (empty($messages)): ?>
+                                    <div class="empty-state" style="margin:auto;">
+                                        <p>Bu kişiyle henüz mesajlaşmadınız.</p>
+                                    </div>
+                                <?php else: ?>
+                                    <?php foreach ($messages as $m): ?>
+                                        <?php $isSent = ((int) $m['sender_id'] === (int) $user['id']); ?>
+                                        <div class="chat-bubble <?= $isSent ? 'sent' : 'received' ?>" data-mid="<?= (int) $m['id'] ?>">
+                                            <?= nl2br(e($m['message'])) ?>
+                                            <div class="chat-time"><?= date('H:i', strtotime($m['created_at'])) ?></div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <form class="chat-input-wrap" id="chat-form" method="POST">
+                                <?= csrfField() ?>
+                                <textarea name="message_text" id="mText" class="chat-textarea" placeholder="Mesajınızı yazın..." required></textarea>
+                                <button type="submit" class="btn btn-primary">Gönder</button>
+                            </form>
+                            <div style="font-size:0.74rem;color:var(--text-muted);padding:0 8px 6px;" id="liveState">Canlı mesajlaşma açık</div>
+                            <div style="font-size:0.74rem;color:var(--primary);padding:0 8px 10px;min-height:18px;" id="typingState"></div>
+                        <?php else: ?>
+                            <div class="empty-state" style="margin:auto;">
+                                <h3>Sohbet seçin</h3>
+                                <p>Soldan bir kişi seçerek mesajlaşmaya başlayabilirsiniz.</p>
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                </div>
             </div>
         </div>
     </div>
-</div>
-</div>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
     <script>
-        // Mesaj listesinde en alta scroll yap
+        const activeContactId = <?= (int) $activeContactId ?>;
         const msgList = document.getElementById('msg-list');
-        if(msgList) {
-            msgList.scrollTop = msgList.scrollHeight;
+        const chatForm = document.getElementById('chat-form');
+        const mText = document.getElementById('mText');
+        const liveState = document.getElementById('liveState');
+        const typingState = document.getElementById('typingState');
+        let lastMessageId = 0;
+        let typingTimer = null;
+        let lastTypingSentAt = 0;
+
+        function playIncomingSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.value = 0.03;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                setTimeout(() => {
+                    osc.stop();
+                    ctx.close();
+                }, 120);
+            } catch (_) {}
         }
 
-        // Enter tuşuyla mesaj gönderimi
-        const mText = document.getElementById('mText');
-        if(mText){
-            mText.addEventListener('keydown', function(e){
-                if(e.key === 'Enter' && !e.shiftKey) {
+        async function sendTypingState(isTyping) {
+            if (activeContactId <= 0) return;
+            const now = Date.now();
+            if (isTyping && now - lastTypingSentAt < 1000) return;
+            lastTypingSentAt = now;
+            try {
+                await fetch('<?= APP_URL ?>/api/messages.php?action=typing_set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact_id: activeContactId, is_typing: isTyping ? 1 : 0 })
+                });
+            } catch (_) {}
+        }
+
+        function refreshLastMessageId() {
+            if (!msgList) return;
+            const ids = Array.from(msgList.querySelectorAll('[data-mid]')).map(el => parseInt(el.dataset.mid, 10) || 0);
+            lastMessageId = ids.length ? Math.max(...ids) : 0;
+        }
+
+        function appendBubble(m) {
+            if (!msgList) return;
+            const emptyState = msgList.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble ' + (m.is_mine ? 'sent' : 'received');
+            bubble.dataset.mid = String(m.id || 0);
+
+            const safeText = (m.message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            bubble.innerHTML = safeText + '<div class="chat-time">' + (m.time || '') + '</div>';
+            msgList.appendChild(bubble);
+            msgList.scrollTop = msgList.scrollHeight;
+
+            if (m.id && m.id > lastMessageId) {
+                lastMessageId = m.id;
+            }
+        }
+
+        if (msgList) {
+            msgList.scrollTop = msgList.scrollHeight;
+            refreshLastMessageId();
+        }
+
+        if (mText) {
+            mText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    document.getElementById('chat-form').submit();
+                    chatForm?.dispatchEvent(new Event('submit', { cancelable: true }));
                 }
             });
+            mText.addEventListener('input', function() {
+                if (!mText.value.trim()) {
+                    sendTypingState(false);
+                    return;
+                }
+                sendTypingState(true);
+                if (typingTimer) clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => sendTypingState(false), 1800);
+            });
+            mText.addEventListener('blur', function() {
+                sendTypingState(false);
+            });
+        }
+
+        if (chatForm && activeContactId > 0) {
+            chatForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const text = (mText?.value || '').trim();
+                if (!text) return;
+
+                try {
+                    const res = await fetch('<?= APP_URL ?>/api/messages.php?action=send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ receiver_id: activeContactId, message: text })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.message) {
+                        appendBubble(data.message);
+                        mText.value = '';
+                        sendTypingState(false);
+                    }
+                } catch (_) {}
+            });
+        }
+
+        async function pollMessages() {
+            if (!msgList || activeContactId <= 0) return;
+            try {
+                const res = await fetch(`<?= APP_URL ?>/api/messages.php?action=poll&uid=${activeContactId}&last_id=${lastMessageId}`, { cache: 'no-store' });
+                const data = await res.json();
+                if (data.success && Array.isArray(data.messages) && data.messages.length > 0) {
+                    data.messages.forEach(m => {
+                        appendBubble(m);
+                        if (!m.is_mine) {
+                            playIncomingSound();
+                        }
+                    });
+                }
+                if (typingState) {
+                    typingState.textContent = data.typing ? 'Karsi taraf yaziyor...' : '';
+                }
+                if (liveState) liveState.textContent = 'Canlı mesajlaşma açık';
+            } catch (_) {
+                if (liveState) liveState.textContent = 'Bağlantı zayıf, tekrar deneniyor...';
+            }
+        }
+
+        if (activeContactId > 0) {
+            setInterval(pollMessages, 4000);
         }
     </script>
 </body>

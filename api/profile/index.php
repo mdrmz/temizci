@@ -15,27 +15,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT
 
     if (!empty($body['name'])) {
         $fields[] = 'name = ?';
-        $params[] = trim($body['name']);
+        $params[] = trim((string) $body['name']);
     }
     if (!empty($body['phone'])) {
         $fields[] = 'phone = ?';
-        $params[] = trim($body['phone']);
+        $params[] = trim((string) $body['phone']);
     }
     if (!empty($body['city'])) {
         $fields[] = 'city = ?';
-        $params[] = trim($body['city']);
+        $params[] = trim((string) $body['city']);
     }
     if (isset($body['bio'])) {
         $fields[] = 'bio = ?';
-        $params[] = trim($body['bio']);
+        $params[] = trim((string) $body['bio']);
     }
 
-    // Şifre değişikliği
-    if (!empty($body['new_password'])) {
-        if (strlen($body['new_password']) < 6)
-            jsonError('Yeni şifre en az 6 karakter olmalı.');
+    $currentPassword = trim((string) ($body['current_password'] ?? ''));
+    $newPassword = trim((string) ($body['new_password'] ?? ''));
+    if (($currentPassword === '') xor ($newPassword === '')) {
+        jsonError('Şifre değiştirmek için mevcut şifre ve yeni şifre birlikte gönderilmelidir.');
+    }
+
+    // Şifre değiştirme (web ile hizalı: min 8 + mevcut şifre doğrulama)
+    if ($newPassword !== '') {
+        if (strlen($newPassword) < 8) {
+            jsonError('Yeni şifre en az 8 karakter olmalıdır.');
+        }
+        if (!password_verify($currentPassword, $user['password'])) {
+            jsonError('Mevcut şifre yanlış.');
+        }
         $fields[] = 'password = ?';
-        $params[] = password_hash($body['new_password'], PASSWORD_DEFAULT);
+        $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
     }
 
     if (!empty($fields)) {

@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 // ============================================================
-// Temizci Burada — Rozet (Badge) Sistemi
+// Temizci Burada  -  Rozet (Badge) Sistemi
 // ============================================================
 
 require_once __DIR__ . '/config.php';
@@ -13,61 +13,61 @@ function getBadgeDefinitions(): array
     return [
         'first_job' => [
             'name' => 'İlk İş',
-            'icon' => '🌟',
+            'icon' => '1I',
             'desc' => 'İlk işini tamamladı',
             'check' => fn($stats) => $stats['completed_jobs'] >= 1,
         ],
         'five_jobs' => [
             'name' => '5 İş Ustası',
-            'icon' => '💪',
+            'icon' => '5I',
             'desc' => '5 işi başarıyla tamamladı',
             'check' => fn($stats) => $stats['completed_jobs'] >= 5,
         ],
         'ten_jobs' => [
             'name' => '10+ Profesyonel',
-            'icon' => '🏆',
+            'icon' => '10+',
             'desc' => '10 veya daha fazla iş tamamladı',
             'check' => fn($stats) => $stats['completed_jobs'] >= 10,
         ],
         'twenty_five_jobs' => [
             'name' => 'Usta Temizlikçi',
-            'icon' => '👑',
+            'icon' => 'USTA',
             'desc' => '25+ işi tamamlayan deneyimli profesyonel',
             'check' => fn($stats) => $stats['completed_jobs'] >= 25,
         ],
         'high_rating' => [
             'name' => 'Yüksek Puanlı',
-            'icon' => '⭐',
+            'icon' => '*',
             'desc' => '4.5+ ortalama puan',
             'check' => fn($stats) => $stats['rating'] >= 4.5 && $stats['review_count'] >= 3,
         ],
         'five_star' => [
             'name' => 'Mükemmel',
-            'icon' => '🌟',
+            'icon' => '5*',
             'desc' => '5/5 ortalama puan (min 5 değerlendirme)',
             'check' => fn($stats) => $stats['rating'] >= 4.9 && $stats['review_count'] >= 5,
         ],
         'fast_responder' => [
             'name' => 'Hızlı Yanıt',
-            'icon' => '⚡',
+            'icon' => 'HZL',
             'desc' => '10+ teklif vermiş aktif kullanıcı',
             'check' => fn($stats) => $stats['total_offers'] >= 10,
         ],
         'popular' => [
             'name' => 'Popüler',
-            'icon' => '🔥',
+            'icon' => 'POP',
             'desc' => '20+ teklif almış popüler ilan sahibi',
             'check' => fn($stats) => $stats['received_offers'] >= 20,
         ],
         'verified' => [
             'name' => 'Doğrulanmış',
-            'icon' => '✅',
+            'icon' => 'OK',
             'desc' => 'Kimliği doğrulanmış güvenilir kullanıcı',
             'check' => fn($stats) => $stats['is_verified'] == 1,
         ],
         'referrer' => [
             'name' => 'Davetçi',
-            'icon' => '🎁',
+            'icon' => 'REF',
             'desc' => '3+ kişiyi platforma davet etti',
             'check' => fn($stats) => $stats['referral_count'] >= 3,
         ],
@@ -169,3 +169,4 @@ function badgeTag(string $icon, string $name): string
 {
     return "<span style='display:inline-flex;align-items:center;gap:4px;background:rgba(99,102,241,0.08);color:#6366f1;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;border:1px solid rgba(99,102,241,0.15);'>{$icon} {$name}</span>";
 }
+

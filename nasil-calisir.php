@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -16,15 +16,13 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nasıl Çalışır & S.S.S — Temizci Burada</title>
+    <title>Nasıl Çalışır & S.S.S  -  Temizci Burada</title>
     
     <!-- SEO -->
     <meta name="description" content="Temizci Burada platformu nasıl çalışır? İlan vermek, temizlikçi bulmak ve teklif almak hakkında merak ettiğiniz tüm sıkça sorulan sorulara (S.S.S) buradan ulaşın.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.temizciburada.com/nasil-calisir">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
     
     <link rel="icon" href="/logo.png" type="image/png">
@@ -82,14 +80,14 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
     <nav class="navbar scrolled" style="background:rgba(255,255,255,0.95);">
         <div class="navbar-inner container">
             <a href="index" class="navbar-logo">
-                <div class="logo-icon">🧹</div><span><span>Temizci Burada</span></span>
+                <div class="logo-icon"></div><span><span>Temizci Burada</span></span>
             </a>
             <div class="navbar-nav">
                 <a href="listings/browse">İlanlar</a>
                 <a href="nasil-calisir" style="color:var(--primary);">Nasıl Çalışır?</a>
             </div>
             <div class="navbar-actions">
-                <button class="theme-toggle-btn" id="themeToggle" title="Tema Değiştir" style="margin-right:10px;">🌙</button>
+                <button class="theme-toggle-btn" id="themeToggle" title="Tema Değiştir" style="margin-right:10px;"></button>
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard" class="btn btn-outline btn-sm">Panelime Git</a>
                 <?php else: ?>
@@ -112,12 +110,12 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
     <div class="faq-container">
         
         <div class="faq-category">
-            <div class="faq-category-title"><span>🏠</span> Ev Sahipleri İçin</div>
+            <div class="faq-category-title"><span> </span> Ev Sahipleri İçin</div>
             
             <div class="accordion-item">
                 <button class="accordion-header">
                     Platformu kullanmak ücretli mi?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
@@ -128,7 +126,7 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
             <div class="accordion-item">
                 <button class="accordion-header">
                     Nasıl ilan verebilirim?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
@@ -139,22 +137,22 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
             <div class="accordion-item">
                 <button class="accordion-header">
                     Gelen teklifleri nasıl değerlendirmeliyim?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
-                    İlanı açtıktan sonra bölgenizdeki hizmet verenler size teklif sunarlar. İlan detay sayfanızdan teklifleri görebilirsiniz. Seçim yaparken kişinin teklif fiyatına, profildeki <strong>Yıldız Puanlamasına</strong>, yaptığı iş sayısına ve "✅ Doğrulanmış Profil" rozeti olup olmadığına dikkat edebilirsiniz.
+                    İlanı açtıktan sonra bölgenizdeki hizmet verenler size teklif sunarlar. İlan detay sayfanızdan teklifleri görebilirsiniz. Seçim yaparken kişinin teklif fiyatına, profildeki <strong>Yıldız Puanlamasına</strong>, yaptığı iş sayısına ve " Doğrulanmış Profil" rozeti olup olmadığına dikkat edebilirsiniz.
                 </div>
             </div>
         </div>
 
         <div class="faq-category">
-            <div class="faq-category-title"><span>🧹</span> Hizmet Verenler İçin</div>
+            <div class="faq-category-title"><span></span> Hizmet Verenler İçin</div>
             
             <div class="accordion-item">
                 <button class="accordion-header">
                     Nasıl iş bulabilirim?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
@@ -165,33 +163,33 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
             <div class="accordion-item">
                 <button class="accordion-header">
                     "Doğrulanmış Profil (Verified)" rozeti nedir nasıl alırım?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
-                    Doğrulanmış Profil rozeti (profildeki yeşil ✅ işareti), sistem yöneticilerimiz tarafından kimlik onayından geçmiş güvenilir temizlik profesyonellerine verilir. Bu rozet ev sahiplerinin size olan güvenini arttırır. Doğrulama talebi için profil sayfanızdaki Destek sisteminden bize ulaşabilirsiniz.
+                    Doğrulanmış Profil rozeti (profildeki yeşil  işareti), sistem yöneticilerimiz tarafından kimlik onayından geçmiş güvenilir temizlik profesyonellerine verilir. Bu rozet ev sahiplerinin size olan güvenini arttırır. Doğrulama talebi için profil sayfanızdaki Destek sisteminden bize ulaşabilirsiniz.
                 </div>
             </div>
         </div>
 
         <div class="faq-category">
-            <div class="faq-category-title"><span>🔒</span> Güvenlik & Ödeme</div>
+            <div class="faq-category-title"><span></span> Güvenlik & Ödeme</div>
             
             <div class="accordion-item">
                 <button class="accordion-header">
                     Ödemeler nasıl yapılıyor?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
-                    Şu anda platformumuz online ödeme <strong>almamaktadır.</strong> Teklif üzerinden anlaştığınız tutarı iş bitiminde doğrudan hizmet verene nakit veya havale sistemi ile elden ödersiniz. Param güvende gibi altyapılar yakın zamanda sisteme dahil olacaktır.
+                    Åu anda platformumuz online ödeme <strong>almamaktadır.</strong> Teklif üzerinden anlaştığınız tutarı iş bitiminde doğrudan hizmet verene nakit veya havale sistemi ile elden ödersiniz. Param güvende gibi altyapılar yakın zamanda sisteme dahil olacaktır.
                 </div>
             </div>
 
             <div class="accordion-item">
                 <button class="accordion-header">
                     Bir sorun yaşarsam ne yapmalıyım?
-                    <span class="icon">▼</span>
+                    <span class="icon">â–¼</span>
                 </button>
                 <div class="accordion-content">
                     <br>
@@ -214,7 +212,7 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
 
     <?php include 'includes/footer.php'; ?>
 
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
     <script>
         // Accordion functionality
@@ -237,3 +235,6 @@ $initials = $isLoggedIn ? strtoupper(substr($user['name'], 0, 1)) : '';
     </script>
 </body>
 </html>
+
+
+

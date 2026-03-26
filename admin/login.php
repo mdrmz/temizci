@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($u && password_verify($password, $u['password'])) {
                 if ($u['role'] === 'admin') {
-                    loginUser($u['id']);
+                    loginUser($u['id'], (int) ($u['session_version'] ?? 0));
                     setFlash('success', 'Yönetici girişi başarılı. Hoş geldiniz.');
                     header('Location: /admin/index');
                     exit;
@@ -47,9 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönetici Girişi — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Yönetici Girişi - Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
     <style>
@@ -106,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($error): ?>
                 <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 0.85rem; border: 1px solid rgba(239, 68, 68, 0.2);">
-                    ⚠️ <?= e($error) ?>
+                    <?= e($error) ?>
                 </div>
             <?php endif; ?>
 
@@ -118,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group mb-4">
                     <label class="form-label">Şifre</label>
-                    <input type="password" name="password" class="form-control" required placeholder="••••••••" style="height: 50px; border-radius: 12px;">
+                    <input type="password" name="password" class="form-control" required placeholder="********" style="height: 50px; border-radius: 12px;">
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block" style="height: 50px; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-top: 10px;">
@@ -135,3 +134,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../assets/js/theme.js"></script>
 </body>
 </html>
+
+

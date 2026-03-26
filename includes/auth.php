@@ -12,6 +12,25 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+function ensureSessionVersionColumn(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    try {
+        $db = getDB();
+        $col = $db->query("SHOW COLUMNS FROM users LIKE 'session_version'")->fetch();
+        if (!$col) {
+            $db->exec("ALTER TABLE users ADD COLUMN session_version INT NOT NULL DEFAULT 0 AFTER is_active");
+        }
+    } catch (Throwable $e) {
+        // If schema update fails, continue with existing behavior.
+    }
+}
+
 // Giriş yapmış mı?
 function isLoggedIn(): bool
 {
@@ -25,29 +44,68 @@ function requireLogin(string $redirect = '/login.php'): void
         header('Location: ' . APP_URL . $redirect);
         exit;
     }
+
+    if (currentUser() === null) {
+        header('Location: ' . APP_URL . $redirect);
+        exit;
+    }
 }
 
 // Mevcut kullanıcıyı getir
-function currentUser(): ?array
+function currentUser(bool $forceRefresh = false): ?array
 {
     if (!isLoggedIn())
         return null;
+
+    ensureSessionVersionColumn();
+
     static $user = null;
+    if ($forceRefresh) {
+        $user = null;
+    }
+
     if ($user === null) {
         $db = getDB();
         $stmt = $db->prepare("SELECT * FROM users WHERE id = ? AND is_active = 1");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch() ?: null;
     }
+
+    if (!$user) {
+        logoutUser();
+        return null;
+    }
+
+    $dbVersion = (int) ($user['session_version'] ?? 0);
+    $sessionVersion = $_SESSION['session_version'] ?? null;
+    if ($sessionVersion !== null && (int) $sessionVersion !== $dbVersion) {
+        logoutUser();
+        return null;
+    }
+    $_SESSION['session_version'] = $dbVersion;
+
     return $user;
 }
 
 // Oturum aç
-function loginUser(int $userId): void
+function loginUser(int $userId, ?int $sessionVersion = null): void
 {
+    ensureSessionVersionColumn();
     session_regenerate_id(true);
     $_SESSION['user_id'] = $userId;
     $_SESSION['logged_in_at'] = time();
+
+    if ($sessionVersion === null) {
+        try {
+            $db = getDB();
+            $stmt = $db->prepare("SELECT session_version FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            $sessionVersion = (int) $stmt->fetchColumn();
+        } catch (Throwable $e) {
+            $sessionVersion = 0;
+        }
+    }
+    $_SESSION['session_version'] = (int) $sessionVersion;
 }
 
 // Oturumu kapat

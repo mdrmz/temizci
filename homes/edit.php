@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($address))
             $errors[] = 'Adres zorunludur.';
         if (empty($city))
-            $errors[] = 'Şehir zorunludur.';
+            $errors[] = 'Åehir zorunludur.';
 
         $photoPath = $home['photo'];
         if (!empty($_FILES['photo']['name'])) {
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user['id']
             ]);
 
-            setFlash('success', 'Ev bilgileri güncellendi! ✨');
+            setFlash('success', 'Ev bilgileri güncellendi! 
             redirect(APP_URL . '/homes/list');
         }
     }
@@ -93,9 +93,8 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evi Düzenle — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Evi Düzenle  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -112,13 +111,13 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
             <div class="page-content">
                 <div class="container-sm">
-                    <div class="page-title">✏️ Evi Düzenle</div>
+                    <div class="page-title"> Evi Düzenle</div>
                     <div class="page-subtitle">
                         <?= e($home['title']) ?> bilgilerini güncelleyin.
                     </div>
 
                     <?php if (!empty($errors)): ?>
-                        <div class="flash flash-error">❌
+                        <div class="flash flash-error">
                             <?= e(implode('<br>', $errors)) ?>
                         </div>
                     <?php endif; ?>
@@ -156,7 +155,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                         value="<?= e($home['district']) ?>">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="city">Şehir *</label>
+                                    <label class="form-label" for="city">Åehir *</label>
                                     <select id="city" name="city" class="form-control" required>
                                         <?php foreach ($cities as $c): ?>
                                             <option value="<?= e($c) ?>" <?= ($home['city'] === $c) ? 'selected' : '' ?>>
@@ -183,15 +182,17 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary mt-4">💾 Güncellemeleri Kaydet</button>
+                            <button type="submit" class="btn btn-primary mt-4"> Güncellemeleri Kaydet</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

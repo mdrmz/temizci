@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($password !== $confirm)
       $errors[] = 'Şifreler eşleşmiyor.';
     if (empty($_POST['kvkk_accept']))
-      $errors[] = 'KVKK Aydınlatma Metni’ni kabul etmelisiniz.';
+      $errors[] = "KVKK Aydınlatma Metni'ni kabul etmelisiniz.";
 
     if (empty($errors)) {
       $db = getDB();
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $userId = $db->lastInsertId();
         loginUser($userId);
-        setFlash('success', 'Hoş geldiniz! Hesabınız oluşturuldu.' . ($referredBy ? ' 🎁 Davet ile katıldınız!' : ''));
+        setFlash('success', 'Hoş geldiniz! Hesabınız oluşturuldu.' . ($referredBy ? '  Davet ile katıldınız!' : ''));
         redirect(APP_URL . '/dashboard');
       }
     }
@@ -80,9 +80,8 @@ $cities = getCities();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kayıt Ol — Temizci Burada</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+  <title>Kayıt Ol  -  Temizci Burada</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -95,13 +94,13 @@ $cities = getCities();
   <div class="auth-page">
     <div class="auth-card" style="max-width:520px;">
       <div class="auth-logo">
-        <div class="logo-icon">🧹</div>
+        <div class="logo-icon"></div>
         <h1>Ücretsiz Hesap Oluştur</h1>
         <p>Birkaç adımda kayıt olun</p>
       </div>
 
       <?php if (!empty($errors)): ?>
-        <div class="flash flash-error">❌ <?= e(implode(' ', $errors)) ?></div>
+        <div class="flash flash-error"> <?= e(implode(' ', $errors)) ?></div>
       <?php endif; ?>
 
       <form method="POST" action="" data-validate>
@@ -109,7 +108,7 @@ $cities = getCities();
         <?php if ($refCode): ?>
             <input type="hidden" name="ref_code" value="<?= e($refCode) ?>">
             <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.3rem;">🎁</span>
+                <span style="font-size:1.3rem;"></span>
                 <div>
                     <div style="font-weight:700;font-size:0.88rem;color:var(--primary);">Davet ile Katılıyorsunuz!</div>
                     <div style="font-size:0.78rem;color:var(--text-muted);">Davet kodu: <?= e($refCode) ?></div>
@@ -124,7 +123,7 @@ $cities = getCities();
             <div class="role-option">
               <input type="radio" name="role" id="role_homeowner" value="homeowner" <?= (($_POST['role'] ?? $role) === 'homeowner') ? 'checked' : '' ?>>
               <label for="role_homeowner">
-                <span class="role-icon">🏠</span>
+                <span class="role-icon"> </span>
                 <span class="role-name">Ev Sahibiyim</span>
                 <span class="role-desc">Temizlik hizmeti arıyorum</span>
               </label>
@@ -132,7 +131,7 @@ $cities = getCities();
             <div class="role-option">
               <input type="radio" name="role" id="role_worker" value="worker" <?= (($_POST['role'] ?? $role) === 'worker') ? 'checked' : '' ?>>
               <label for="role_worker">
-                <span class="role-icon">🧹</span>
+                <span class="role-icon"></span>
                 <span class="role-name">Hizmet Vereceğim</span>
                 <span class="role-desc">İş fırsatları arıyorum</span>
               </label>
@@ -191,16 +190,16 @@ $cities = getCities();
               <?= !empty($_POST['kvkk_accept']) ? 'checked' : '' ?> required>
             <span>
               <a href="kvkk" target="_blank" style="color:var(--primary);font-weight:600;">KVKK Aydınlatma
-                Metni</a>’ni ve
+                Metni</a>'ni ve
               <a href="cerez-politikasi" target="_blank" style="color:var(--primary);font-weight:600;">Çerez
-                Politikası</a>’nı
+                Politikası</a>'nı
               okudum, kişisel verilerimin işlenmesine açık rıza gösteriyorum. <span style="color:#e11d48;">*</span>
             </span>
           </label>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block btn-lg">
-          🚀 Hesabımı Oluştur
+           Hesabımı Oluştur
         </button>
       </form>
 
@@ -212,8 +211,10 @@ $cities = getCities();
       </div>
     </div>
   </div>
-  <script src="assets/js/app.js?v=4.0"></script>
+  <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

@@ -10,6 +10,7 @@ html[data-theme="dark"] {
     --bg: #0B1120;
     --bg-white: #1E293B;
     --bg-card: rgba(30, 41, 59, 0.7);
+    --bg-hover: #243244;
     
     /* Text Colors */
     --text-primary: #F8FAFC;

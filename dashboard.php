@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -75,7 +75,7 @@ $maxVal = max(1, max(array_column($chartData, 'listings')), max(array_column($ch
 // Favori sayısı (tablo yoksa hata vermeden 0 döner)
 $favCount = 0;
 try {
-    $favStmt = $db->prepare("SELECT COUNT(*) FROM favorites WHERE user_id = ?");
+    $favStmt = $db->prepare("SELECT COUNT(*) FROM fav_store_v2 WHERE user_id = ?");
     $favStmt->execute([$user['id']]);
     $favCount = (int)$favStmt->fetchColumn();
 } catch (Exception $e) {
@@ -88,9 +88,8 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <title>Dashboard  -  Temizci Burada</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -139,10 +138,10 @@ try {
                     </div>
                 </div>
 
-                <!-- AKTİVİTE GRAFİĞİ -->
+                <!-- AKTİVİTE GRAFİÄİ -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <div class="card-title">📊 Son 7 Gün Aktivitesi</div>
+                        <div class="card-title"> Son 7 Gün Aktivitesi</div>
                     </div>
                     <div class="card-body">
                         <div style="display:flex;gap:6px;align-items:flex-end;height:160px;padding:0 10px;">
@@ -180,7 +179,7 @@ try {
                                 <thead>
                                     <tr>
                                         <th>İlan</th>
-                                        <th>Şehir</th>
+                                        <th>Åehir</th>
                                         <th>Teklif</th>
                                         <th>Durum</th>
                                     </tr>
@@ -243,7 +242,10 @@ try {
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="assets/js/app.js?v=4.0"></script>
+    <script src="assets/js/app.js?v=5.0"></script>
     <script src="assets/js/theme.js"></script>
 </body>
 </html>
+
+
+

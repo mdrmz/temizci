@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 // ============================================================
-// Temizci Burada — Veritabanı Bağlantısı (PDO)
+// Temizci Burada  -  Veritabanı Bağlantısı (PDO)
 // ============================================================
 
 require_once __DIR__ . '/config.php';
@@ -17,6 +17,7 @@ function getDB(): PDO
                 PDO::ATTR_EMULATE_PREPARES => false,
             ];
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            $pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
         } catch (PDOException $e) {
             if (DEBUG_MODE) {
                 die('<div style="font-family:sans-serif;padding:20px;background:#fee;color:#c00;border:1px solid #c00;border-radius:8px;margin:20px">
@@ -31,3 +32,4 @@ function getDB(): PDO
     }
     return $pdo;
 }
+

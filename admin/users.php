@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/includes/auth.php'; // Protects this file for admins only
 require_once __DIR__ . '/../includes/db.php';
 
@@ -14,21 +14,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf()) {
         if ($action === 'verify') {
             try {
                 $db->prepare("UPDATE users SET is_verified = 1 WHERE id = ?")->execute([$userId]);
-                setFlash('success', 'Kullanıcı doğrulandı.');
+                setFlash('success', 'KullanÄ±cÄ± doÄŸrulandÄ±.');
             } catch(PDOException $e) {
-                setFlash('error', 'İşlem başarısız.');
+                setFlash('error', 'Ä°ÅŸlem baÅŸarÄ±sÄ±z.');
             }
         } elseif ($action === 'unverify') {
              try {
                 $db->prepare("UPDATE users SET is_verified = 0 WHERE id = ?")->execute([$userId]);
-                setFlash('success', 'Doğrulama iptal edildi.');
+                setFlash('success', 'DoÄŸrulama iptal edildi.');
             } catch(PDOException $e) {}
         } elseif ($action === 'ban') {
             $db->prepare("UPDATE users SET role = 'banned' WHERE id = ?")->execute([$userId]);
-            setFlash('success', 'Kullanıcı yasaklandı.');
+            setFlash('success', 'KullanÄ±cÄ± yasaklandÄ±.');
         } elseif ($action === 'unban') {
             $db->prepare("UPDATE users SET role = 'homeowner' WHERE id = ? AND role = 'banned'")->execute([$userId]);
-            setFlash('success', 'Kullanıcı banı kaldırıldı.');
+            setFlash('success', 'KullanÄ±cÄ± banÄ± kaldÄ±rÄ±ldÄ±.');
         }
     }
     redirect('/admin/users');
@@ -43,9 +43,8 @@ $users = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kullanıcı Yönetimi — Admin Paneli</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>KullanÄ±cÄ± YÃ¶netimi â€” Admin Paneli</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
 </head>
@@ -55,13 +54,13 @@ $users = $stmt->fetchAll();
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
         <div class="main-content">
-            <?php $headerTitle = 'Kullanıcı Yönetimi'; include __DIR__ . '/includes/header.php'; ?>
+            <?php $headerTitle = 'KullanÄ±cÄ± YÃ¶netimi'; include __DIR__ . '/includes/header.php'; ?>
 
             <div class="page-content">
                 <?= flashHtml() ?>
                 <div class="page-header" style="margin-bottom: 2rem;">
-                    <div class="page-title">Sistemdeki Tüm Kullanıcılar</div>
-                    <div class="page-subtitle">Platforma kayıtlı tüm kullanıcıları listeleyip, yetkilendirebilirsiniz.</div>
+                    <div class="page-title">Sistemdeki TÃ¼m KullanÄ±cÄ±lar</div>
+                    <div class="page-subtitle">Platforma kayÄ±tlÄ± tÃ¼m kullanÄ±cÄ±larÄ± listeleyip, yetkilendirebilirsiniz.</div>
                 </div>
 
                 <div class="card" style="border-radius: 16px; overflow: hidden; border: 1px solid var(--border-light);">
@@ -69,11 +68,11 @@ $users = $stmt->fetchAll();
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Kullanıcı</th>
+                                    <th>KullanÄ±cÄ±</th>
                                     <th>Rol</th>
-                                    <th>Doğrulama</th>
-                                    <th>Kayıt Tarihi</th>
-                                    <th>İşlemler</th>
+                                    <th>DoÄŸrulama</th>
+                                    <th>KayÄ±t Tarihi</th>
+                                    <th>Ä°ÅŸlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,14 +87,14 @@ $users = $stmt->fetchAll();
                                             <?php 
                                             if($u['role'] === 'worker') echo 'Hizmet Veren';
                                             elseif($u['role'] === 'admin') echo 'Admin';
-                                            elseif($u['role'] === 'banned') echo 'Yasaklı';
+                                            elseif($u['role'] === 'banned') echo 'YasaklÄ±';
                                             else echo 'Ev Sahibi';
                                             ?>
                                         </span>
                                     </td>
                                     <td>
                                         <?php if(isset($u['is_verified']) && $u['is_verified']): ?>
-                                            <span style="color:#10b981;font-weight:700;font-size:0.8rem;">✅ Onaylı</span>
+                                            <span style="color:#10b981;font-weight:700;font-size:0.8rem;">âœ… OnaylÄ±</span>
                                         <?php else: ?>
                                             <span style="color:var(--text-muted);font-size:0.8rem;">Standart</span>
                                         <?php endif; ?>
@@ -117,7 +116,7 @@ $users = $stmt->fetchAll();
                                                     <?php if($u['role'] !== 'banned'): ?>
                                                         <button type="submit" name="action" value="ban" class="btn btn-sm btn-outline" style="padding:4px 8px; border-color:#ef4444; color:#ef4444; font-size: 0.75rem;">Yasakla</button>
                                                     <?php else: ?>
-                                                        <button type="submit" name="action" value="unban" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size: 0.75rem;">Kaldır</button>
+                                                        <button type="submit" name="action" value="unban" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size: 0.75rem;">KaldÄ±r</button>
                                                     <?php endif; ?>
                                                 </form>
                                             </div>
@@ -134,7 +133,9 @@ $users = $stmt->fetchAll();
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 </html>
+
+

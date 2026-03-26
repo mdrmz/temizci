@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -46,9 +46,8 @@ $isWorker = $user['role'] === 'worker';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tekliflerim — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Tekliflerim  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -65,7 +64,7 @@ $isWorker = $user['role'] === 'worker';
 
             <div class="page-content">
                 <?= flashHtml() ?>
-                <div class="page-title">💬
+                <div class="page-title">
                     <?= $isWorker ? 'Verdiğim Teklifler' : 'İlanlarıma Gelen Teklifler' ?>
                 </div>
                 <div class="page-subtitle">
@@ -75,7 +74,7 @@ $isWorker = $user['role'] === 'worker';
                 <?php if (empty($offers)): ?>
                     <div class="card">
                         <div class="empty-state">
-                            <div class="empty-state-icon">💬</div>
+                            <div class="empty-state-icon"></div>
                             <h3>Henüz
                                 <?= $isWorker ? 'teklif vermediniz' : 'teklif almadınız' ?>
                             </h3>
@@ -84,7 +83,7 @@ $isWorker = $user['role'] === 'worker';
                             </p>
                             <a href="<?= $isWorker ? '../listings/browse.php' : '../listings/create.php' ?>"
                                 class="btn btn-primary">
-                                <?= $isWorker ? '🔍 İlanları Gez' : '+ İlan Oluştur' ?>
+                                <?= $isWorker ? ' İlanları Gez' : '+ İlan Oluştur' ?>
                             </a>
                         </div>
                     </div>
@@ -95,7 +94,7 @@ $isWorker = $user['role'] === 'worker';
                         $grouped[$o['status']][] = $o;
                     }
                     $statusOrder = ['pending', 'accepted', 'rejected'];
-                    $statusLabels = ['pending' => '⏳ Bekleyenler', 'accepted' => '✅ Kabul Edilenler', 'rejected' => '❌ Reddedilenler'];
+                    $statusLabels = ['pending' => 'â³ Bekleyenler', 'accepted' => ' Kabul Edilenler', 'rejected' => ' Reddedilenler'];
                     ?>
                     <?php foreach ($statusOrder as $st):
                         if (!isset($grouped[$st]))
@@ -113,8 +112,8 @@ $isWorker = $user['role'] === 'worker';
                                             <div>
                                                 <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">
                                                     <?= $offer['cat_icon'] ?>
-                                                    <?= e($offer['cat_name']) ?> · 📍
-                                                    <?= e($offer['city']) ?> · 🏠
+                                                    <?= e($offer['cat_name']) ?> · 
+                                                    <?= e($offer['city']) ?> ·  
                                                     <?= e($offer['room_config']) ?>
                                                 </div>
                                                 <a href="../listings/detail?id=<?= $offer['listing_id'] ?>"
@@ -152,8 +151,8 @@ $isWorker = $user['role'] === 'worker';
                                                 <?= offerStatusBadge($offer['status']) ?>
                                                 <div style="margin-top:8px;">
                                                     <a href="../listings/detail?id=<?= $offer['listing_id'] ?>"
-                                                        class="btn btn-ghost btn-sm">İlana Git →</a>
-                                                    <a href="../messages.php?uid=<?= $isWorker ? $offer['listing_user_id'] : $offer['worker_id'] ?>" class="btn btn-outline btn-sm" style="margin-left: 6px;">✉️ Mesaj</a>
+                                                        class="btn btn-ghost btn-sm">İlana Git â†’</a>
+                                                    <a href="../messages.php?uid=<?= $isWorker ? $offer['listing_user_id'] : $offer['worker_id'] ?>" class="btn btn-outline btn-sm" style="margin-left: 6px;"> Mesaj</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -167,8 +166,10 @@ $isWorker = $user['role'] === 'worker';
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

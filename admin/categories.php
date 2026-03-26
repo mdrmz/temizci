@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/includes/auth.php'; // Protects this file for admins only
 require_once __DIR__ . '/../includes/db.php';
 
@@ -10,29 +10,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf()) {
     if ($action === 'add') {
         $name = trim($_POST['name'] ?? '');
         $slug = trim($_POST['slug'] ?? '');
-        $icon = trim($_POST['icon'] ?? '📋');
+        $icon = trim($_POST['icon'] ?? 'ğŸ“‹');
         
         if ($name && $slug) {
             try {
                 $db->prepare("INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)")
                    ->execute([$name, $slug, $icon]);
-                setFlash('success', 'Kategori başarıyla eklendi.');
+                setFlash('success', 'Kategori baÅŸarÄ±yla eklendi.');
             } catch(PDOException $e) {
-                setFlash('error', 'Kategori eklenirken hata oluştu.');
+                setFlash('error', 'Kategori eklenirken hata oluÅŸtu.');
             }
         }
     } elseif ($action === 'edit') {
         $id = (int)$_POST['id'];
         $name = trim($_POST['name'] ?? '');
         $slug = trim($_POST['slug'] ?? '');
-        $icon = trim($_POST['icon'] ?? '📋');
+        $icon = trim($_POST['icon'] ?? 'ğŸ“‹');
         
         try {
             $db->prepare("UPDATE categories SET name=?, slug=?, icon=? WHERE id=?")
                ->execute([$name, $slug, $icon, $id]);
-            setFlash('success', 'Kategori güncellendi.');
+            setFlash('success', 'Kategori gÃ¼ncellendi.');
         } catch(PDOException $e) {
-            setFlash('error', 'Güncelleme hatası.');
+            setFlash('error', 'GÃ¼ncelleme hatasÄ±.');
         }
     } elseif ($action === 'delete') {
         $id = (int)$_POST['id'];
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf()) {
             $db->prepare("DELETE FROM categories WHERE id=?")->execute([$id]);
             setFlash('success', 'Kategori silindi.');
         } catch(PDOException $e) {
-            setFlash('error', 'Kategoriye ait ilanlar olduğu için silinemedi.');
+            setFlash('error', 'Kategoriye ait ilanlar olduÄŸu iÃ§in silinemedi.');
         }
     }
     
@@ -55,9 +55,8 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kategori Yönetimi — Admin Paneli</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Kategori YÃ¶netimi â€” Admin Paneli</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
     <link rel="icon" href="/logo.png" type="image/png">
 </head>
@@ -67,13 +66,13 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
         <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
         <div class="main-content">
-            <?php $headerTitle = 'Kategori Yönetimi'; include __DIR__ . '/includes/header.php'; ?>
+            <?php $headerTitle = 'Kategori YÃ¶netimi'; include __DIR__ . '/includes/header.php'; ?>
 
             <div class="page-content">
                 <?= flashHtml() ?>
                 <div class="page-header" style="margin-bottom: 2rem;">
                     <div class="page-title">Hizmet Kategorileri</div>
-                    <div class="page-subtitle">Sistemde kullanılan hizmet başlıklarını ve ikonlarını buradan yönetin.</div>
+                    <div class="page-subtitle">Sistemde kullanÄ±lan hizmet baÅŸlÄ±klarÄ±nÄ± ve ikonlarÄ±nÄ± buradan yÃ¶netin.</div>
                 </div>
 
                 <div class="grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
@@ -86,10 +85,10 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>İkon</th>
-                                        <th>Adı</th>
+                                        <th>Ä°kon</th>
+                                        <th>AdÄ±</th>
                                         <th>Link (Slug)</th>
-                                        <th>İşlem</th>
+                                        <th>Ä°ÅŸlem</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -99,7 +98,7 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
                                         <td style="font-weight:700; color: var(--text-primary);"><?= e($c['name']) ?></td>
                                         <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted);"><?= e($c['slug']) ?></td>
                                         <td>
-                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Silmek istediğinizden emin misiniz?');">
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Silmek istediÄŸinizden emin misiniz?');">
                                                 <?= csrfField() ?>
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?= $c['id'] ?>">
@@ -123,17 +122,17 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
                                 <input type="hidden" name="action" value="add">
                                 
                                 <div class="form-group mb-4">
-                                    <label class="form-label">Kategori Adı</label>
-                                    <input type="text" name="name" class="form-control" required placeholder="Örn: Ev Temizliği">
+                                    <label class="form-label">Kategori AdÄ±</label>
+                                    <input type="text" name="name" class="form-control" required placeholder="Ã–rn: Ev TemizliÄŸi">
                                 </div>
                                 <div class="form-group mb-4">
                                     <label class="form-label">Link Adresi (Slug)</label>
-                                    <input type="text" name="slug" class="form-control" required placeholder="Örn: ev-temizligi">
-                                    <div class="form-hint" style="font-size: 0.75rem; margin-top: 4px;">Sadece küçük harf ve tire (-)</div>
+                                    <input type="text" name="slug" class="form-control" required placeholder="Ã–rn: ev-temizligi">
+                                    <div class="form-hint" style="font-size: 0.75rem; margin-top: 4px;">Sadece kÃ¼Ã§Ã¼k harf ve tire (-)</div>
                                 </div>
                                 <div class="form-group mb-4">
                                     <label class="form-label">Simge (Emoji)</label>
-                                    <input type="text" name="icon" class="form-control" required placeholder="Örn: 🧹" value="📋">
+                                    <input type="text" name="icon" class="form-control" required placeholder="Ã–rn: ğŸ§¹" value="ğŸ“‹">
                                 </div>
                                 
                                 <button class="btn btn-primary btn-block" type="submit" style="padding: 12px; font-weight: 700;">Kategori Ekle</button>
@@ -147,7 +146,9 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 </html>
+
+

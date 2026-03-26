@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 if (session_status() === PHP_SESSION_NONE)
@@ -10,12 +10,11 @@ if (session_status() === PHP_SESSION_NONE)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KVKK — Kişisel Verilerin Korunması | Temizci Burada</title>
+    <title>KVKK  -  Kişisel Verilerin Korunması | Temizci Burada</title>
     <meta name="description"
         content="Temizci Burada KVKK kapsamında kişisel verilerin korunması politikası, veri işleme amaçları ve haklarınız hakkında bilgi.">
     <link rel="canonical" href="https://www.temizciburada.com/kvkk">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
     <style>
         .legal-page {
@@ -85,7 +84,7 @@ if (session_status() === PHP_SESSION_NONE)
     <nav class="navbar scrolled" style="background:rgba(255,255,255,0.97);">
         <div class="navbar-inner container">
             <a href="index" class="navbar-logo">
-                <div class="logo-icon">🧹</div>
+                <div class="logo-icon"></div>
                 <span class="navbar-logo-text"><span>Temizci Burada</span></span>
             </a>
         </div>
@@ -96,7 +95,7 @@ if (session_status() === PHP_SESSION_NONE)
             <a href="index">Ana Sayfa</a> / KVKK Aydınlatma Metni
         </div>
 
-        <h1>🔒 KVKK Aydınlatma Metni</h1>
+        <h1> KVKK Aydınlatma Metni</h1>
         <div class="update-date">Son güncelleme:
             <?= date('d.m.Y') ?>
         </div>
@@ -116,7 +115,7 @@ if (session_status() === PHP_SESSION_NONE)
         <ul>
             <li><strong>Kimlik Bilgileri:</strong> Ad, soyad</li>
             <li><strong>İletişim Bilgileri:</strong> E-posta adresi, telefon numarası</li>
-            <li><strong>Konum Bilgisi:</strong> Şehir / ilçe (ilan adresi)</li>
+            <li><strong>Konum Bilgisi:</strong> Åehir / ilçe (ilan adresi)</li>
             <li><strong>Hesap Bilgileri:</strong> Kullanıcı rolü, profil fotoğrafı</li>
             <li><strong>İşlem Bilgileri:</strong> Oluşturulan ilanlar, verilen teklifler</li>
             <li><strong>Teknik Veriler:</strong> IP adresi, oturum bilgileri (güvenlik amaçlı)</li>
@@ -127,7 +126,7 @@ if (session_status() === PHP_SESSION_NONE)
             <li>Hesap oluşturma ve kimlik doğrulama</li>
             <li>İlan ve teklif hizmetlerinin sunulması</li>
             <li>Kullanıcılar arası iletişimin kolaylaştırılması</li>
-            <li>Güvenlik ve dolandırıcılık önleme (siber güvenlik — KVKK m.5/2-ç)</li>
+            <li>Güvenlik ve dolandırıcılık önleme (siber güvenlik  -  KVKK m.5/2-ç)</li>
             <li>Yasal yükümlülüklerin yerine getirilmesi</li>
         </ul>
 
@@ -148,13 +147,13 @@ if (session_status() === PHP_SESSION_NONE)
         <h2>6. KVKK Kapsamındaki Haklarınız</h2>
         <p>KVKK'nın 11. maddesi kapsamında aşağıdaki haklara sahipsiniz:</p>
         <ul>
-            <li>✅ Kişisel verilerinizin işlenip işlenmediğini <strong>öğrenme</strong></li>
-            <li>✅ İşlenen verilerinize <strong>erişim</strong> talep etme</li>
-            <li>✅ Hatalı verilerin <strong>düzeltilmesini</strong> isteme</li>
-            <li>✅ Verilerinizin <strong>silinmesini</strong> talep etme</li>
-            <li>✅ İşlemenin <strong>kısıtlanmasını</strong> isteme</li>
-            <li>✅ Verilerin <strong>taşınabilirliği</strong>ni talep etme</li>
-            <li>✅ Otomatik kararlar dahil işlemeye <strong>itiraz</strong> etme</li>
+            <li> Kişisel verilerinizin işlenip işlenmediğini <strong>öğrenme</strong></li>
+            <li> İşlenen verilerinize <strong>erişim</strong> talep etme</li>
+            <li> Hatalı verilerin <strong>düzeltilmesini</strong> isteme</li>
+            <li> Verilerinizin <strong>silinmesini</strong> talep etme</li>
+            <li> İşlemenin <strong>kısıtlanmasını</strong> isteme</li>
+            <li> Verilerin <strong>taşınabilirliği</strong>ni talep etme</li>
+            <li> Otomatik kararlar dahil işlemeye <strong>itiraz</strong> etme</li>
         </ul>
 
         <div class="highlight-box">
@@ -165,7 +164,7 @@ if (session_status() === PHP_SESSION_NONE)
 
         <h2>7. Güvenlik Önlemleri</h2>
         <ul>
-            <li>Şifreler bcrypt ile şifrelenmektedir</li>
+            <li>Åifreler bcrypt ile şifrelenmektedir</li>
             <li>HTTPS / SSL zorunludur</li>
             <li>Giriş denemeleri izlenmekte, brute force saldırıları engellenmektedir</li>
             <li>CSRF token koruması uygulanmaktadır</li>
@@ -193,3 +192,5 @@ if (session_status() === PHP_SESSION_NONE)
 </body>
 
 </html>
+
+

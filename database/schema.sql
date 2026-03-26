@@ -11,13 +11,14 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(150) UNIQUE NOT NULL,
     phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    role ENUM('homeowner','worker') DEFAULT 'homeowner',
+    role ENUM('homeowner','worker','admin') DEFAULT 'homeowner',
     avatar VARCHAR(255) DEFAULT NULL,
     bio TEXT DEFAULT NULL,
     city VARCHAR(100) DEFAULT NULL,
     rating DECIMAL(3,2) DEFAULT 0.00,
     review_count INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
+    session_version INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

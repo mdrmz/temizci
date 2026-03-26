@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -20,9 +20,8 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evlerim — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>Evlerim  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -39,16 +38,16 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
             <div class="page-content">
                 <?= flashHtml() ?>
-                <div class="page-title">🏘️ Kayıtlı Evlerim</div>
+                <div class="page-title"> Kayıtlı Evlerim</div>
                 <div class="page-subtitle">Kayıtlı evlerinizi yönetin, yeni ilanlar için kullanın</div>
 
                 <?php if (empty($homes)): ?>
                     <div class="card">
                         <div class="empty-state">
-                            <div class="empty-state-icon">🏠</div>
+                            <div class="empty-state-icon"> </div>
                             <h3>Henüz ev eklemediniz</h3>
                             <p>Temizlik ilanı oluşturmak için önce bir ev eklemeniz gerekiyor.</p>
-                            <a href="add" class="btn btn-primary">🏠 İlk Evimi Ekle</a>
+                            <a href="add" class="btn btn-primary">  İlk Evimi Ekle</a>
                         </div>
                     </div>
                 <?php else: ?>
@@ -61,7 +60,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                 <?php else: ?>
                                     <div
                                         style="width:100%;height:160px;background:var(--gradient-soft);display:flex;align-items:center;justify-content:center;font-size:3rem;">
-                                        🏠</div>
+                                         </div>
                                 <?php endif; ?>
                                 <div class="card-body">
                                     <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">
@@ -69,32 +68,32 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                     </div>
                                     <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
                                         <div style="font-size:0.82rem;color:var(--text-muted);">
-                                            📍
+                                            
                                             <?= e($home['district'] ?: $home['city']) ?>,
                                             <?= e($home['city']) ?>
                                         </div>
                                         <div style="display:flex;gap:12px;font-size:0.82rem;color:var(--text-muted);">
-                                            <span>🛏️
+                                            <span>
                                                 <?= e($home['room_config']) ?>
                                             </span>
-                                            <span>🛁
+                                            <span>
                                                 <?= $home['bathroom_count'] ?> Banyo
                                             </span>
-                                            <?php if ($home['sqm']): ?><span>📐
+                                            <?php if ($home['sqm']): ?><span>
                                                     <?= $home['sqm'] ?>m²
                                                 </span>
                                             <?php endif; ?>
                                         </div>
                                         <?php if ($home['has_elevator']): ?>
-                                            <div style="font-size:0.78rem;color:var(--secondary);">✅ Asansörlü</div>
+                                            <div style="font-size:0.78rem;color:var(--secondary);"> Asansörlü</div>
                                         <?php endif; ?>
                                     </div>
                                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                                         <a href="../listings/create?home_id=<?= $home['id'] ?>"
-                                            class="btn btn-primary btn-sm">📋 İlan Oluştur</a>
-                                        <a href="edit?id=<?= $home['id'] ?>" class="btn btn-ghost btn-sm">✏️ Düzenle</a>
+                                            class="btn btn-primary btn-sm"> İlan Oluştur</a>
+                                        <a href="edit?id=<?= $home['id'] ?>" class="btn btn-ghost btn-sm"> Düzenle</a>
                                         <a href="delete?id=<?= $home['id'] ?>" class="btn btn-danger btn-sm"
-                                            data-confirm="Bu evi silmek istediğinizden emin misiniz?">🗑️</a>
+                                            data-confirm="Bu evi silmek istediğinizden emin misiniz?"></a>
                                     </div>
                                 </div>
                             </div>
@@ -105,7 +104,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                             style="display:flex;align-items:center;justify-content:center;min-height:240px;border:2px dashed var(--border);border-radius:var(--radius-lg);text-decoration:none;flex-direction:column;gap:12px;color:var(--text-muted);transition:var(--transition);"
                             onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
                             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-                            <div style="font-size:2.5rem;">➕</div>
+                            <div style="font-size:2.5rem;">â•</div>
                             <div style="font-weight:600;">Yeni Ev Ekle</div>
                         </a>
                     </div>
@@ -114,8 +113,10 @@ $initials = strtoupper(substr($user['name'], 0, 1));
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
 </body>
 
 </html>
+
+

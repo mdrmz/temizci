@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/config.php';
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
@@ -9,7 +9,7 @@ $user = currentUser();
 $db = getDB();
 $errors = [];
 
-// Ev listesi — sadece kullanıcının evleri
+// Ev listesi  -  sadece kullanıcının evleri
 $homesStmt = $db->prepare("SELECT id, title, room_config, city FROM homes WHERE user_id = ? AND is_active = 1");
 $homesStmt->execute([$user['id']]);
 $homes = $homesStmt->fetchAll();
@@ -17,6 +17,24 @@ $homes = $homesStmt->fetchAll();
 $categories = getCategories();
 $times = getPreferredTimes();
 $preHomeId = (int) ($_GET['home_id'] ?? 0);
+$priceStats = [];
+try {
+    $ps = $db->query("
+        SELECT l.category_id, COUNT(*) AS c, MIN(o.price) AS min_p, MAX(o.price) AS max_p, AVG(o.price) AS avg_p
+        FROM offers o
+        JOIN listings l ON l.id = o.listing_id
+        WHERE o.status = 'accepted' AND o.price > 0
+        GROUP BY l.category_id
+    ")->fetchAll();
+    foreach ($ps as $row) {
+        $priceStats[(int) $row['category_id']] = [
+            'count' => (int) $row['c'],
+            'min' => (float) $row['min_p'],
+            'max' => (float) $row['max_p'],
+            'avg' => (float) $row['avg_p'],
+        ];
+    }
+} catch (Exception $e) {}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCsrf()) {
@@ -53,6 +71,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$homeCheck->fetch())
             $errors[] = 'Geçersiz ev seçimi.';
 
+        // Aynı ev + tarih + saat için aktif ilan çakışmasını engelle.
+        if (empty($errors)) {
+            $clashStmt = $db->prepare("
+                SELECT id
+                FROM listings
+                WHERE user_id = ?
+                  AND home_id = ?
+                  AND preferred_date = ?
+                  AND preferred_time = ?
+                  AND status IN ('open','in_progress')
+                LIMIT 1
+            ");
+            $clashStmt->execute([$user['id'], $homeId, $date, $time]);
+            if ($clashStmt->fetch()) {
+                $errors[] = 'Bu ev icin ayni tarih ve saatte zaten aktif bir ilan var.';
+            }
+        }
+
         if (empty($errors)) {
             $db->prepare("
                 INSERT INTO listings (user_id, home_id, category_id, title, description, preferred_date, preferred_time, owner_home, budget, is_recurring)
@@ -60,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ")->execute([$user['id'], $homeId, $catId, $title, $desc, $date, $time, $owner, $budget, $isRecurring]);
 
             $listingId = $db->lastInsertId();
-            setFlash('success', 'İlan başarıyla oluşturuldu! 🎉');
+            setFlash('success', 'İlan başarıyla oluşturuldu!');
             redirect(APP_URL . '/listings/detail.php?id=' . $listingId);
         }
     }
@@ -75,9 +111,8 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İlan Oluştur — Temizci Burada</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <title>İlan Oluştur  -  Temizci Burada</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=5.0">
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
 
     <!-- SEO & Favicon -->
@@ -94,19 +129,19 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
             <div class="page-content">
                 <div class="container-sm">
-                    <div class="page-title">✏️ Yeni İlan Oluştur</div>
+                    <div class="page-title"> Yeni İlan Oluştur</div>
                     <div class="page-subtitle">Temizlik veya günübirlik iş ilanı verin, teklifler almaya başlayın.</div>
 
                     <?php if (empty($homes)): ?>
                         <div class="flash flash-warning">
-                            ⚠️ İlan oluşturmak için önce bir ev eklemelisiniz.
-                            <a href="../homes/add" class="btn btn-primary btn-sm" style="margin-left:12px;">🏠 Ev
+                             ï¸ İlan oluşturmak için önce bir ev eklemelisiniz.
+                            <a href="../homes/add" class="btn btn-primary btn-sm" style="margin-left:12px;">  Ev
                                 Ekle</a>
                         </div>
                     <?php else: ?>
 
                         <?php if (!empty($errors)): ?>
-                            <div class="flash flash-error">❌
+                            <div class="flash flash-error">
                                 <?= e(implode('<br>', $errors)) ?>
                             </div>
                         <?php endif; ?>
@@ -116,7 +151,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
                             <!-- Ev Seçimi -->
                             <div class="card-header">
-                                <div class="card-title">🏠 Hangi Ev İçin?</div>
+                                <div class="card-title">  Hangi Ev İçin?</div>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
@@ -129,7 +164,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                                     <?= (($_POST['home_id'] ?? $preHomeId) == $h['id']) ? 'checked' : '' ?>>
                                                 <div class="home-pick-card"
                                                     style="padding:14px;border:2px solid var(--border);border-radius:var(--radius);transition:var(--transition);">
-                                                    <div style="font-size:1.5rem;margin-bottom:6px;">🏠</div>
+                                                    <div style="font-size:1.5rem;margin-bottom:6px;"> </div>
                                                     <div style="font-weight:700;font-size:0.9rem;">
                                                         <?= e($h['title']) ?>
                                                     </div>
@@ -146,7 +181,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
 
                             <!-- İlan Detayları -->
                             <div class="card-header" style="border-top:1px solid var(--border);">
-                                <div class="card-title">📋 İlan Detayları</div>
+                                <div class="card-title"> İlan Detayları</div>
                             </div>
                             <div class="card-body">
 
@@ -192,6 +227,11 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                         <input type="date" id="preferred_date" name="preferred_date" class="form-control"
                                             min="<?= date('Y-m-d') ?>" value="<?= e($_POST['preferred_date'] ?? '') ?>"
                                             required>
+                                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                                            <button type="button" class="btn btn-outline btn-sm" onclick="setDatePreset('today')">Bugun</button>
+                                            <button type="button" class="btn btn-outline btn-sm" onclick="setDatePreset('tomorrow')">Yarin</button>
+                                            <button type="button" class="btn btn-outline btn-sm" onclick="setDatePreset('weekend')">Hafta Sonu</button>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="preferred_time">Saat Tercihi</label>
@@ -202,13 +242,20 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:0.84rem;color:var(--text-secondary);margin-top:10px;">
+                                            <input type="checkbox" id="urgent_helper" onchange="applyUrgentPreset()">
+                                            Acil is (24 saat icinde otomatik tarih/saat oner)
+                                        </label>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="budget">Bütçe (₺) — Opsiyonel</label>
-                                        <input type="number" id="budget" name="budget" class="form-control" placeholder="0"
-                                            min="0" max="99999" step="1" value="<?= e($_POST['budget'] ?? '') ?>">
-                                        <div class="form-hint">Bütçe belirtirseniz teklifler buna göre şekillenir.</div>
+                                <div class="form-group">
+                                    <label class="form-label" for="budget">Bütçe (â‚º)  -  Opsiyonel</label>
+                                    <input type="number" id="budget" name="budget" class="form-control" placeholder="0"
+                                        min="0" max="99999" step="1" value="<?= e($_POST['budget'] ?? '') ?>">
+                                    <div class="form-hint">Bütçe belirtirseniz teklifler buna göre şekillenir.</div>
+                                    <div id="priceSuggestionBox" style="margin-top:8px;padding:10px;border:1px dashed var(--border);border-radius:10px;background:var(--bg);font-size:0.82rem;color:var(--text-secondary);">
+                                        Akilli fiyat onerisi icin kategori secin.
                                     </div>
+                                </div>
                                     <div class="form-group">
                                         <label class="form-label">Periyodik İlan mı?</label>
                                         <div class="toggle-wrapper" style="margin-top:10px;">
@@ -234,11 +281,17 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                                         </div>
                                     </div>
                                 </div>
+                                <div class="card" style="margin-top:10px;background:var(--bg);border:1px dashed var(--border);">
+                                    <div class="card-body" style="padding:12px 14px;">
+                                        <div style="font-size:0.8rem;color:var(--text-muted);">Randevu Ozeti</div>
+                                        <div id="appointmentSummary" style="font-weight:700;">Tarih ve saat seciniz.</div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="card-footer" style="display:flex;gap:12px;justify-content:flex-end;">
                                 <a href="my_listings" class="btn btn-ghost">İptal</a>
-                                <button type="submit" class="btn btn-primary">🚀 İlanı Yayınla</button>
+                                <button type="submit" class="btn btn-primary"> İlanı Yayınla</button>
                             </div>
                         </form>
                     <?php endif; ?>
@@ -247,7 +300,7 @@ $initials = strtoupper(substr($user['name'], 0, 1));
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="../assets/js/app.js?v=4.0"></script>
+    <script src="../assets/js/app.js?v=5.0"></script>
     <script src="../assets/js/theme.js"></script>
     <script>
         // Radio kartlarını seçildiğinde vurgula
@@ -264,7 +317,75 @@ $initials = strtoupper(substr($user['name'], 0, 1));
                 if (card) card.style.borderColor = 'var(--primary)';
             }
         });
+
+        function setDatePreset(type) {
+            const input = document.getElementById('preferred_date');
+            if (!input) return;
+            const d = new Date();
+            if (type === 'tomorrow') {
+                d.setDate(d.getDate() + 1);
+            } else if (type === 'weekend') {
+                const day = d.getDay();
+                const diff = day === 6 ? 0 : ((6 - day + 7) % 7);
+                d.setDate(d.getDate() + diff);
+            }
+            input.value = d.toISOString().slice(0, 10);
+            updateAppointmentSummary();
+        }
+
+        function applyUrgentPreset() {
+            const urgent = document.getElementById('urgent_helper');
+            const dateInput = document.getElementById('preferred_date');
+            const timeInput = document.getElementById('preferred_time');
+            if (!urgent || !dateInput || !timeInput) return;
+            if (urgent.checked) {
+                const d = new Date();
+                d.setDate(d.getDate() + 1);
+                dateInput.value = d.toISOString().slice(0, 10);
+                timeInput.value = 'sabah';
+            }
+            updateAppointmentSummary();
+        }
+
+        function updateAppointmentSummary() {
+            const dateInput = document.getElementById('preferred_date');
+            const timeInput = document.getElementById('preferred_time');
+            const summary = document.getElementById('appointmentSummary');
+            if (!dateInput || !timeInput || !summary) return;
+            const date = dateInput.value ? new Date(dateInput.value + 'T00:00:00') : null;
+            const dateText = date ? date.toLocaleDateString('tr-TR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : 'Tarih secilmedi';
+            const timeText = timeInput.options[timeInput.selectedIndex]?.text || 'Saat secilmedi';
+            summary.textContent = dateText + ' - ' + timeText;
+        }
+
+        document.getElementById('preferred_date')?.addEventListener('change', updateAppointmentSummary);
+        document.getElementById('preferred_time')?.addEventListener('change', updateAppointmentSummary);
+        updateAppointmentSummary();
+
+        const categoryPriceStats = <?= json_encode($priceStats, JSON_UNESCAPED_UNICODE) ?>;
+        function updatePriceSuggestion() {
+            const checkedCat = document.querySelector('input[name=\"category_id\"]:checked');
+            const box = document.getElementById('priceSuggestionBox');
+            if (!box) return;
+            if (!checkedCat) {
+                box.textContent = 'Akilli fiyat onerisi icin kategori secin.';
+                return;
+            }
+            const stat = categoryPriceStats[checkedCat.value];
+            if (!stat || !stat.count) {
+                box.textContent = 'Bu kategori icin yeterli gecmis teklif verisi yok.';
+                return;
+            }
+            const min = Math.round(stat.min);
+            const max = Math.round(stat.max);
+            const avg = Math.round(stat.avg);
+            box.innerHTML = `Onerilen aralik: <strong>${min} - ${max} TL</strong> (ortalama ${avg} TL, ${stat.count} is verisi) <button type=\"button\" class=\"btn btn-outline btn-sm\" style=\"margin-left:8px;\" onclick=\"document.getElementById('budget').value=${avg}\">Ortalamayi Uygula</button>`;
+        }
+        document.querySelectorAll('input[name=\"category_id\"]').forEach(el => el.addEventListener('change', updatePriceSuggestion));
+        updatePriceSuggestion();
     </script>
 </body>
 
 </html>
+
+
