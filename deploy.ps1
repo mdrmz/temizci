@@ -76,10 +76,28 @@ echo '--- Veritabani tamamlandi ---'
 "@
 Run-SSH $dbCmds
 
-# ——— Apache mod_rewrite ———
+# ——— Apache VirtualHost Yapilandirmasi ———
 Write-Host ""
-Write-Host "Apache mod_rewrite kontrol ediliyor..." -ForegroundColor Yellow
-Run-SSH "sudo a2enmod rewrite 2>/dev/null; sudo systemctl reload apache2 2>/dev/null || sudo systemctl reload nginx 2>/dev/null"
+Write-Host "Apache VirtualHost ayarlaniyor..." -ForegroundColor Yellow
+$apacheCmds = @"
+sudo bash -c 'cat <<EOF > /etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+    ServerName temizciburada.com
+    ServerAlias www.temizciburada.com
+    DocumentRoot $REMOTE_DIR
+
+    <Directory $REMOTE_DIR>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF'
+sudo a2enmod rewrite 2>/dev/null
+sudo a2ensite 000-default.conf 2>/dev/null
+sudo systemctl restart apache2
+"@
+Run-SSH $apacheCmds
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Green
