@@ -1,0 +1,68 @@
+# Temizci Burada
+
+> Türkiye'nin güvenilir ev temizliği ve günübirlik hizmet ilanları platformu.
+
+## Platform Hakkında
+
+Temizci Burada, ev sahiplerinin temizlik, cam yıkama, ütü, çamaşır ve benzeri ihtiyaçları için ilan açabildiği; temizlik hizmeti verenlerinin bu ilanlara teklif verebildiği bir çevrimiçi pazar yeridir.
+
+- **Web sitesi:** https://www.temizciburada.com
+- **Dil:** Türkçe
+- **Hizmet alanı:** Türkiye geneli
+- **İletişim:** info@temizciburada.com
+
+## Sunulan Hizmetler
+
+Platform aşağıdaki temizlik kategorilerinde ilanları destekler:
+- Ev Temizliği (genel, derin, taşınma temizliği)
+- Cam ve Pencere Temizliği
+- Ütü ve Çamaşır
+- Bulaşık
+- Bahçe Düzenleme
+- Koltuk ve Halı Yıkama
+- Ofis Temizliği
+- Diğer günübirlik ev hizmetleri
+
+## Platformun Çalışma Şekli
+
+1. Ev sahibi ücretsiz kayıt olur ve ev bilgilerini (oda sayısı, metrekare, şehir) girer.
+2. İstenilen hizmet için ilan oluşturur; tarih, saat tercihi ve bütçeyi belirtir.
+3. Hizmet verenler ilana teklif gönderir.
+4. Ev sahibi tekliflerden istediğini seçer; iş tamamlanır.
+
+## Kullanıcı Rolleri
+
+- **Ev Sahibi:** İlan verir, teklifleri inceler ve kabul eder.
+- **Hizmet Veren (Temizlikçi):** İlanları görür ve teklif sunar.
+
+## Öne Çıkan Özellikler
+
+- Kayıt ve ilan oluşturma ücretsizdir.
+- Güvenli ödeme ve profil doğrulama altyapısı.
+- Şehir, kategori ve anahtar kelimeyle ilan arama.
+- Tüm cihazlarda çalışan mobil uyumlu tasarım.
+
+## Sıkça Sorulan Sorular
+
+**Temizci Burada nedir?**
+Temizci Burada, ev sahiplerini güvenilir temizlik hizmeti verenlerle buluşturan Türkiye merkezli bir çevrimiçi pazar yeridir.
+
+**Temizci Burada'da kayıt ücretsiz mi?**
+Evet, hem ev sahipleri hem de hizmet verenler için kayıt ve ilan oluşturma tamamen ücretsizdir.
+
+**Temizci Burada'da hangi şehirlere hizmet veriliyor?**
+Platform Türkiye genelinde tüm şehirleri desteklemektedir.
+
+**Nasıl temizlikçi bulabilirim?**
+Temizciburada.com'a giriş yapın, evinizi ekleyin, hizmet ilanı oluşturun ve gelen tekliflerden birini kabul edin.
+
+**Temizci Burada güvenli mi?**
+Evet. Platform PDO güvenli sorguları, bcrypt şifreleme ve CSRF koruması kullanır. Kullanıcı profilleri ve değerlendirmeler şeffaflık sağlar.
+
+## Kurucu Bilgisi
+
+Temizci Burada, Türkiye'de ev hizmetlerine erişimi kolaylaştırmak amacıyla kurulmuş bir girişimdir.
+
+## İçerik Lisansı
+
+Bu llms.txt dosyası, yapay zeka dil modelleri ve arama motorlarına Temizci Burada hakkında doğru bilgi vermek amacıyla yayınlanmıştır. İçerik serbestçe alıntılanabilir.

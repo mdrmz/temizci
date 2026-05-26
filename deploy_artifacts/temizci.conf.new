@@ -1,0 +1,39 @@
+<VirtualHost *:80>
+    ServerName temizciburada.com
+    ServerAlias www.temizciburada.com 192.168.1.51
+    DocumentRoot /var/www/html/Temizlik_Burda
+
+    <Directory /var/www/html/Temizlik_Burda>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # Laravel v2 API via Apache (production path, no artisan serve)
+    Alias /api-v2 /var/www/html/Temizlik_Burda_v2/api/public
+    <Directory /var/www/html/Temizlik_Burda_v2/api/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ProxyPreserveHost On
+    ProxyPassReverse / http://127.0.0.1:3001/
+
+    RewriteEngine On
+
+    # Next.js homepage and assets
+    RewriteRule ^/$ http://127.0.0.1:3001/ [P,L]
+    RewriteRule ^/_next/(.*)$ http://127.0.0.1:3001/_next/$1 [P,L]
+    RewriteRule ^/favicon.ico$ http://127.0.0.1:3001/favicon.ico [P,L]
+    RewriteRule ^/robots\.txt$ http://127.0.0.1:3001/robots.txt [P,L]
+    RewriteRule ^/sitemap\.xml$ http://127.0.0.1:3001/sitemap.xml [P,L]
+
+    # User-facing app routes (admin/php pages remain available)
+    RewriteRule ^/(login|register|dashboard|profile|homes|offers|messages)/?$ http://127.0.0.1:3001/$1 [P,L]
+    RewriteRule ^/listings/?$ http://127.0.0.1:3001/listings [P,L]
+    RewriteRule ^/listings/new/?$ http://127.0.0.1:3001/listings/new [P,L]
+    RewriteRule ^/listings/([0-9]+)/?$ http://127.0.0.1:3001/listings/$1 [P,L]
+    RewriteRule ^/hizmet/([a-z0-9-]+)/?$ http://127.0.0.1:3001/hizmet/$1 [P,L]
+
+    ErrorLog ${APACHE_LOG_DIR}/temizci-error.log
+    CustomLog ${APACHE_LOG_DIR}/temizci-access.log combined
+</VirtualHost>

@@ -1,0 +1,218 @@
+/* ============================================================
+   Dark Mode Toggles & Variables
+   ============================================================ */
+
+/*
+   We override the CSS Custom Properties when [data-theme="dark"] is applied to the html tag
+*/
+html[data-theme="dark"] {
+    /* Backgrounds */
+    --bg: #0B1120;
+    --bg-white: #1E293B;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --bg-hover: #243244;
+    
+    /* Text Colors */
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #64748B;
+    
+    /* Borders */
+    --border: #334155;
+    --border-light: #1E293B;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+    --shadow: 0 10px 25px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.3);
+    --shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.6);
+
+    /* Form Inputs */
+    --form-bg: #0F172A;
+}
+
+/* Specific Dark Mode Overrides */
+html[data-theme="dark"] .form-control {
+    background: var(--bg-white);
+    color: var(--text-primary);
+}
+html[data-theme="dark"] .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+html[data-theme="dark"] .app-header {
+    background: rgba(11, 17, 32, 0.85);
+}
+html[data-theme="dark"] .navbar {
+    background: rgba(11, 17, 32, 0.85);
+}
+html[data-theme="dark"] .chat-container {
+    background: var(--bg-white);
+    border-color: var(--border);
+}
+html[data-theme="dark"] .chat-sidebar {
+    background: var(--bg);
+}
+html[data-theme="dark"] .chat-area {
+    background: var(--bg);
+}
+html[data-theme="dark"] .chat-header {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .chat-input {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .message-received {
+    background: var(--bg-white);
+    border-color: var(--border);
+}
+html[data-theme="dark"] .contact-item:hover, 
+html[data-theme="dark"] .contact-item.active {
+    background: rgba(255,255,255,0.05);
+}
+html[data-theme="dark"] .stat-card {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .table th {
+    background: var(--bg-white);
+}
+html[data-theme="dark"] .badge-default {
+    background: var(--border);
+    color: var(--text-secondary);
+}
+
+/* Theme Toggle Button Specifics */
+.theme-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1.1rem;
+}
+.theme-toggle-btn:hover {
+    background: var(--border-light);
+    color: var(--text-primary);
+}
+html[data-theme="dark"] .theme-toggle-btn {
+    border-color: var(--text-muted);
+}
+html[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* 2026 UI polish dark-mode compatibility */
+html[data-theme="dark"] body {
+    background:
+        radial-gradient(circle at 8% 12%, rgba(198, 107, 61, 0.1), transparent 24%),
+        radial-gradient(circle at 92% 18%, rgba(47, 107, 97, 0.1), transparent 26%),
+        #0b1120;
+}
+
+html[data-theme="dark"] .app-header,
+html[data-theme="dark"] .navbar-inner,
+html[data-theme="dark"] .search-bar,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .stat-card {
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.42);
+}
+
+html[data-theme="dark"] .sidebar {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 17, 32, 0.98) 100%);
+}
+
+html[data-theme="dark"] .sidebar-link:hover {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: rgba(148, 163, 184, 0.08);
+}
+
+html[data-theme="dark"] .table th {
+    background: linear-gradient(180deg, #111a2f 0%, #0f172a 100%);
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .table tr:hover td {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+html[data-theme="dark"] .btn-outline {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.34);
+    color: #e2e8f0;
+}
+
+html[data-theme="dark"] .chat-count {
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #d8e5f1;
+}
+
+html[data-theme="dark"] .chat-contact-preview {
+    color: #9eb0c2;
+}
+
+html[data-theme="dark"] .chat-back-link {
+    background: rgba(15, 23, 42, 0.74);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #d4e2ef;
+}
+
+html[data-theme="dark"] .chat-back-link:hover {
+    background: rgba(148, 163, 184, 0.12);
+}
+
+html[data-theme="dark"] .chat-empty p {
+    color: #96a8ba;
+}
+
+/* 2026 mobile premium pack dark mode */
+html[data-theme="dark"] .tb-mobile-nav {
+    background: rgba(10, 16, 30, 0.9);
+    border-color: rgba(148, 163, 184, 0.24);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item {
+    color: #a6b6c6;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item:hover {
+    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #d9e3ee;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__icon {
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.26);
+    color: #d4deea;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item--active {
+    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.34);
+    color: #e8eef6;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item--active .tb-mobile-nav__icon,
+html[data-theme="dark"] .tb-mobile-nav__item--quick .tb-mobile-nav__icon {
+    background: linear-gradient(135deg, #264761 0%, #2d6079 58%, #2f7168 100%);
+    border-color: transparent;
+    color: #fff;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item--danger {
+    color: #f3b6bb;
+}
+
+html[data-theme="dark"] .tb-mobile-nav__item--danger .tb-mobile-nav__icon {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(248, 113, 113, 0.42);
+    color: #ffc7cc;
+}

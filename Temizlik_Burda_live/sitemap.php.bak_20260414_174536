@@ -1,0 +1,108 @@
+<?php
+ob_start();
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/functions.php';
+ob_end_clean();
+
+header('Content-Type: application/xml; charset=utf-8');
+
+$baseUrl = rtrim(canonicalBaseUrl(), '/');
+$today = date('Y-m-d');
+
+function xmlEscape(string $value): string
+{
+    return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+}
+
+$staticUrls = [
+    ['loc' => $baseUrl . '/', 'lastmod' => $today, 'changefreq' => 'daily', 'priority' => '1.0'],
+    ['loc' => $baseUrl . '/listings/browse', 'lastmod' => $today, 'changefreq' => 'hourly', 'priority' => '0.9'],
+    ['loc' => $baseUrl . '/nasil-calisir', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.8'],
+    ['loc' => $baseUrl . '/register', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.7'],
+    ['loc' => $baseUrl . '/login', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.5'],
+    ['loc' => $baseUrl . '/kvkk', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
+    ['loc' => $baseUrl . '/cerez-politikasi', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
+];
+
+$categoryUrls = [];
+foreach (getCategories() as $cat) {
+    if (empty($cat['slug'])) {
+        continue;
+    }
+    $categoryUrls[] = [
+        'loc' => $baseUrl . '/listings/browse?cat=' . rawurlencode((string) $cat['slug']),
+        'lastmod' => $today,
+        'changefreq' => 'daily',
+        'priority' => '0.75',
+    ];
+}
+
+$cityUrls = [];
+foreach (getCities() as $city) {
+    $cityUrls[] = [
+        'loc' => $baseUrl . '/listings/browse?city=' . rawurlencode((string) $city),
+        'lastmod' => $today,
+        'changefreq' => 'daily',
+        'priority' => '0.72',
+    ];
+}
+
+$listingUrls = [];
+$workerUrls = [];
+try {
+    $db = getDB();
+
+    $listingStmt = $db->query("
+        SELECT id, created_at AS lastmod
+        FROM listings
+        WHERE status IN ('open', 'in_progress')
+        ORDER BY created_at DESC
+        LIMIT 3000
+    ");
+    foreach ($listingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $listingUrls[] = [
+            'loc' => $baseUrl . '/listings/detail?id=' . (int) $row['id'],
+            'lastmod' => date('Y-m-d', strtotime((string) ($row['lastmod'] ?? $today))),
+            'changefreq' => 'weekly',
+            'priority' => '0.65',
+        ];
+    }
+
+    $workerStmt = $db->query("
+        SELECT id, created_at AS lastmod
+        FROM users
+        WHERE role = 'worker'
+        ORDER BY created_at DESC
+        LIMIT 1500
+    ");
+    foreach ($workerStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $workerUrls[] = [
+            'loc' => $baseUrl . '/worker_profile?id=' . (int) $row['id'],
+            'lastmod' => date('Y-m-d', strtotime((string) ($row['lastmod'] ?? $today))),
+            'changefreq' => 'weekly',
+            'priority' => '0.55',
+        ];
+    }
+} catch (Throwable $e) {
+    $listingUrls = [];
+    $workerUrls = [];
+}
+
+$allUrls = array_merge($staticUrls, $categoryUrls, $cityUrls, $listingUrls, $workerUrls);
+
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <?php foreach ($allUrls as $url): ?>
+        <url>
+            <loc><?= xmlEscape((string) $url['loc']) ?></loc>
+            <lastmod><?= xmlEscape((string) $url['lastmod']) ?></lastmod>
+            <changefreq><?= xmlEscape((string) $url['changefreq']) ?></changefreq>
+            <priority><?= xmlEscape((string) $url['priority']) ?></priority>
+        </url>
+    <?php endforeach; ?>
+</urlset>

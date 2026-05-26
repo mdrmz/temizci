@@ -1,0 +1,834 @@
+﻿<?php
+require_once 'includes/config.php';
+require_once 'includes/auth.php';
+require_once 'includes/db.php';
+require_once 'includes/functions.php';
+
+if (isLoggedIn()) {
+    redirect(APP_URL . '/dashboard');
+}
+
+try {
+    $db = getDB();
+    $stmt = $db->query("
+        SELECT l.*, c.name AS cat_name, c.icon AS cat_icon,
+               u.name AS owner_name,
+               h.city, h.room_config, h.photo AS home_photo
+        FROM listings l
+        JOIN categories c ON l.category_id = c.id
+        JOIN users u ON l.user_id = u.id
+        JOIN homes h ON l.home_id = h.id
+        WHERE l.status = 'open'
+        ORDER BY l.created_at DESC
+        LIMIT 6
+    ");
+    $listings = $stmt->fetchAll();
+    $categories = getCategories();
+} catch (Exception $e) {
+    $listings = [];
+    $categories = [];
+}
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temizci Burada - Eviniz Icin Guvenilir Temizlik Hizmeti</title>
+    <meta name="description" content="Temizci Burada ile eviniz icin guvenilir ev temizligi, cam temizligi, utu ve daha fazlasinda hizmet ilani olusturun.">
+    <meta name="keywords" content="temizlikci bul, ev temizligi, temizlik ilani, gunubirlik temizlikci, temizlik hizmeti, Turkiye temizlik platformu">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.temizciburada.com/">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#20435f">
+    <link rel="apple-touch-icon" href="logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.temizciburada.com/">
+    <meta property="og:title" content="Temizci Burada - Guvenilir Temizlik Hizmeti Platformu">
+    <meta property="og:description" content="Eviniz icin guvenilir temizlik hizmeti bulmanin en duzenli yolu. Ilan verin, teklifler alin ve size en uygun kisiyi secin.">
+    <meta property="og:image" content="https://temizciburada.com/logo.png">
+    <meta property="og:locale" content="tr_TR">
+    <meta property="og:site_name" content="Temizci Burada">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Temizci Burada - Temizlik Hizmetleri Platformu">
+    <meta name="twitter:description" content="Turkiye'nin yeni temizlik hizmetleri pazaryeri. Ilan ver, teklif al, temiz bir eve kavus.">
+    <meta name="twitter:image" content="https://temizciburada.com/logo.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "Temizci Burada",
+          "alternateName": "temizciburada.com",
+          "url": "https://www.temizciburada.com",
+          "description": "Ev temizligi, cam temizligi ve gunubirlik hizmetler icin Turkiye'nin guvenilir platformu.",
+          "inLanguage": "tr-TR",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.temizciburada.com/listings/browse.php?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "Temizci Burada",
+          "url": "https://www.temizciburada.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://temizciburada.com/logo.png"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@temizciburada.com",
+            "contactType": "customer support",
+            "availableLanguage": "Turkish"
+          },
+          "areaServed": {
+            "@type": "Country",
+            "name": "Turkiye"
+          }
+        },
+        {
+          "@type": "Service",
+          "serviceType": "Ev Temizligi Pazaryeri",
+          "provider": { "@type": "Organization", "name": "Temizci Burada" },
+          "areaServed": { "@type": "Country", "name": "Turkiye" }
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Temizci Burada nedir?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Temizci Burada, ev sahiplerini guvenilir temizlik hizmeti verenlerle bulusturan Turkiye merkezli bir cevrimici pazar yeridir."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kayit ve ilan acmak ucretsiz mi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Evet. Temizci Burada'da hem ev sahipleri hem de hizmet verenler icin kayit ve ilan olusturma ucretsizdir."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Teklif almak ne kadar surer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ilan verdikten sonra genellikle birkac saat icinde birden fazla teklif gelmeye baslar."
+          }
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Temizci Burada ile temizlikci nasil bulunur?",
+      "description": "Temizci Burada uzerinden temizlik hizmeti icin nasil ilan olusturulur ve uzman secilir?",
+      "totalTime": "PT5M",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Ucretsiz kayit ol",
+          "text": "Kayit olun ve ev sahibi veya hizmet veren olarak profilinizi olusturun.",
+          "url": "https://www.temizciburada.com/register.php"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Ev bilgilerini ekle",
+          "text": "Fotograf, oda sayisi, metrekare ve sehir bilgilerini girin.",
+          "url": "https://www.temizciburada.com/homes/add.php"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Ilan olustur",
+          "text": "Hizmet turunu, tercih edilen tarihi ve butceyi belirleyin.",
+          "url": "https://www.temizciburada.com/listings/create.php"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Teklifleri sec",
+          "text": "Gelen teklifleri profil, fiyat ve uygunluk bilgileriyle karsilastirin.",
+          "url": "https://www.temizciburada.com/listings/browse.php"
+        }
+      ]
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.2">
+    <link rel="stylesheet" href="assets/css/dark-mode.css">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <style>
+        body { padding-top: 0; }
+        .navbar { background: transparent; border-bottom: 0; }
+        .navbar.scrolled { background: transparent; border-bottom: 0; box-shadow: none; }
+        body.minimal-home {
+            --primary: #20435f;
+            --primary-dark: #163347;
+            --secondary: #6cb745;
+            --accent: #ffd400;
+            --gradient: linear-gradient(135deg, #20435f 0%, #2f5a70 52%, #6cb745 100%);
+            --text-primary: #1f2d38;
+            --text-secondary: #4f606d;
+            --text-muted: #738391;
+            --bg: #f6f8fa;
+            --bg-white: #ffffff;
+            --bg-card: rgba(255,255,255,0.94);
+            --bg-hover: #eef2f6;
+            --border: #d8e1e8;
+            --border-light: #e7edf2;
+            background:
+                radial-gradient(circle at 8% 8%, rgba(47,111,103,0.10), transparent 28%),
+                radial-gradient(circle at 90% 10%, rgba(32,67,95,0.08), transparent 24%),
+                linear-gradient(180deg, #f8fafb 0%, #f2f5f8 48%, #ecf1f5 100%);
+            color: var(--text-primary);
+        }
+
+        body.minimal-home .navbar {
+            top: 14px;
+        }
+
+        body.minimal-home .navbar-inner {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(32, 67, 95, 0.12);
+            box-shadow: 0 14px 32px rgba(21, 40, 55, 0.10);
+            border-radius: 16px;
+        }
+
+        .home-shell {
+            padding-top: 126px;
+        }
+
+        .home-hero {
+            padding: 24px 0 28px;
+        }
+
+        .home-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .home-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: #fff7cf;
+            color: #69590b;
+            border: 1px solid #f0df82;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .home-title {
+            margin: 14px 0 12px;
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4.4vw, 3.2rem);
+            line-height: 1.08;
+            color: #1d3548;
+            letter-spacing: -0.02em;
+        }
+
+        .home-title-accent {
+            color: #2f6f67;
+        }
+
+        .home-lead {
+            max-width: 620px;
+            font-size: 1.03rem;
+            line-height: 1.72;
+            color: #51626f;
+            margin-bottom: 22px;
+        }
+
+        .home-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .home-actions .btn {
+            min-height: 48px;
+            padding: 0 22px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .home-checks {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .home-check {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid #dce5ec;
+            color: #405461;
+            font-size: 0.79rem;
+            font-weight: 600;
+        }
+
+        .home-preview {
+            background: linear-gradient(165deg, #1f3f58, #2a5670 58%, #2d6a63 100%);
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 22px 42px rgba(19, 36, 48, 0.26);
+            color: #fff;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .home-preview-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .home-preview-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .home-preview-sub {
+            font-size: 0.82rem;
+            opacity: 0.82;
+        }
+
+        .home-preview-tag {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.25);
+            height: fit-content;
+        }
+
+        .home-preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .home-preview-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.10);
+            border-radius: 11px;
+            padding: 10px 12px;
+            font-size: 0.86rem;
+        }
+
+        .home-preview-price {
+            font-weight: 700;
+            color: #ffe08f;
+        }
+
+        .home-kpis {
+            padding: 4px 0 12px;
+        }
+
+        .home-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .home-kpi {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #dbe4eb;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(18, 40, 53, 0.08);
+            padding: 14px;
+        }
+
+        .home-kpi-value {
+            font-size: 1.24rem;
+            font-weight: 800;
+            color: #1f455f;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .home-kpi-label {
+            font-size: 0.82rem;
+            color: #5c6e7c;
+        }
+
+        .home-section {
+            padding: 54px 0 8px;
+        }
+
+        .home-head {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 26px;
+        }
+
+        .home-head h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.65rem, 3.2vw, 2.2rem);
+            color: #1d3649;
+            margin-bottom: 10px;
+            letter-spacing: -0.015em;
+        }
+
+        .home-head p {
+            color: #536572;
+            font-size: 0.96rem;
+            line-height: 1.7;
+        }
+
+        .home-steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .home-step {
+            border-radius: 15px;
+            border: 1px solid #dce5ec;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 8px 22px rgba(17, 39, 52, 0.07);
+            padding: 18px;
+        }
+
+        .home-step-no {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f0f4;
+            color: #1f465f;
+            font-size: 0.84rem;
+            font-weight: 800;
+            margin-bottom: 11px;
+        }
+
+        .home-step h3 {
+            font-size: 1rem;
+            color: #223a4b;
+            margin-bottom: 7px;
+        }
+
+        .home-step p {
+            color: #556773;
+            font-size: 0.88rem;
+            line-height: 1.65;
+        }
+
+        .home-cats .cat-item,
+        .home-listings .listing-card {
+            border: 1px solid #dce5ec;
+            border-radius: 15px;
+            box-shadow: 0 8px 22px rgba(17, 39, 52, 0.07);
+            background: rgba(255,255,255,0.92);
+        }
+
+        .home-cats .cat-item:hover,
+        .home-listings .listing-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 26px rgba(17, 39, 52, 0.11);
+        }
+
+        .home-listings .section-topline {
+            margin-bottom: 18px;
+            align-items: flex-end;
+        }
+
+        .home-listings .section-topline .home-head {
+            margin: 0;
+            text-align: left;
+            max-width: 620px;
+        }
+
+        .home-cta {
+            padding-bottom: 12px;
+        }
+
+        .home-cta-box {
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.28);
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255,255,255,0.16), transparent 34%),
+                linear-gradient(135deg, #1f3f58 0%, #2a5670 58%, #2d6a63 100%);
+            box-shadow: 0 22px 44px rgba(18, 40, 52, 0.24);
+            color: #fff;
+            padding: clamp(22px, 3vw, 34px);
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .home-cta-box h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 8px;
+        }
+
+        .home-cta-box p {
+            max-width: 620px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        body.minimal-home .footer {
+            margin-top: 56px;
+            background: linear-gradient(180deg, #102733 0%, #0d1f29 100%);
+        }
+
+        @media (max-width: 1024px) {
+            .home-hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .home-kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .home-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .home-shell {
+                padding-top: 110px;
+            }
+            .home-hero {
+                padding-top: 12px;
+            }
+            .home-title {
+                font-size: 2rem;
+            }
+            .home-lead {
+                font-size: 0.94rem;
+                margin-bottom: 16px;
+            }
+            .home-actions {
+                width: 100%;
+            }
+            .home-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .home-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .home-section {
+                padding-top: 38px;
+            }
+            .home-listings .section-topline .home-head {
+                text-align: center;
+                margin: 0 auto;
+            }
+            .home-listings .section-topline {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body class="minimal-home">
+    <nav class="navbar" id="mainNav">
+        <div class="navbar-inner container">
+            <a href="index" class="navbar-logo">
+                <div class="logo-icon" style="width:36px;height:36px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                    <img src="logo.png" alt="Temizci Burada Logo" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <span class="navbar-logo-text"><span>Temizci Burada</span></span>
+            </a>
+            <div class="navbar-nav">
+                <a href="listings/browse"><span class="nav-mini-icon">◧</span>Ilanlar</a>
+                <a href="#nasil-calisir"><span class="nav-mini-icon">◴</span>Nasil Calisir?</a>
+                <a href="#kategoriler"><span class="nav-mini-icon">◫</span>Kategoriler</a>
+            </div>
+            <div class="navbar-actions">
+                <button class="theme-toggle-btn" id="themeToggle" title="Tema Degistir" style="margin-right:10px;">TM</button>
+                <a href="login" class="btn btn-outline btn-sm"><span class="nav-mini-icon">↪</span>Giris Yap</a>
+                <a href="register" class="btn btn-primary btn-sm"><span class="btn-mini-icon">✦</span>Ucretsiz Basla</a>
+            </div>
+        </div>
+    </nav>
+    <main class="home-shell">
+        <section class="home-hero">
+            <div class="container home-hero-grid">
+                <div>
+                    <div class="home-eyebrow">Gercek ihtiyac odakli</div>
+                    <h1 class="home-title">Evin icin dogru yardimi <span class="home-title-accent">gereksiz ugrasmadan</span> bul</h1>
+                    <p class="home-lead">Kisa bir ilan ac, gelen teklifleri tek ekranda karsilastir, sana uyan kisiyi sec. Uzun formlar ve karisik adimlar yerine net bir akis.</p>
+                    <div class="home-actions">
+                        <a href="register" class="btn btn-primary btn-lg">Ilan Ac</a>
+                        <a href="listings/browse" class="btn btn-outline btn-lg">Ilanlari Incele</a>
+                    </div>
+                    <div class="home-checks">
+                        <span class="home-check">Onayli profiller</span>
+                        <span class="home-check">Acik fiyat gorunumu</span>
+                        <span class="home-check">Mesajlasma destegi</span>
+                    </div>
+                </div>
+                <div class="home-preview">
+                    <div class="home-preview-head">
+                        <div>
+                            <div class="home-preview-title">Bugun icin ornek ilan</div>
+                            <div class="home-preview-sub">2+1 daire · Uskudar · Cumartesi sabah</div>
+                        </div>
+                        <span class="home-preview-tag">Acik</span>
+                    </div>
+                    <div class="home-preview-list">
+                        <div class="home-preview-item"><span>Genel temizlik</span><span class="home-preview-price">1.250 TL</span></div>
+                        <div class="home-preview-item"><span>Cam + yuzeyler</span><span class="home-preview-price">390 TL</span></div>
+                        <div class="home-preview-item"><span>Utu destegi</span><span class="home-preview-price">280 TL</span></div>
+                    </div>
+                    <a href="register" class="btn btn-sm" style="background:#fff;color:#1f4561;border:0;font-weight:700;">Teklifleri gormeye basla</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-kpis">
+            <div class="container home-kpi-grid">
+                <div class="home-kpi">
+                    <div class="home-kpi-value">2.500+</div>
+                    <div class="home-kpi-label">tamamlanan is</div>
+                </div>
+                <div class="home-kpi">
+                    <div class="home-kpi-value">1.200+</div>
+                    <div class="home-kpi-label">aktif hizmet veren</div>
+                </div>
+                <div class="home-kpi">
+                    <div class="home-kpi-value">4.8/5</div>
+                    <div class="home-kpi-label">ortalama puan</div>
+                </div>
+                <div class="home-kpi">
+                    <div class="home-kpi-value">~2 saat</div>
+                    <div class="home-kpi-label">ortalama ilk cevap</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="nasil-calisir" class="home-section">
+            <div class="container">
+                <div class="home-head">
+                    <h2>Uc adimda temiz ve net surec</h2>
+                    <p>Ilk kez kullansan bile kolayca ilerlemen icin akisi sade tuttuk.</p>
+                </div>
+                <div class="home-steps">
+                    <article class="home-step">
+                        <div class="home-step-no">1</div>
+                        <h3>Evini tanimla</h3>
+                        <p>Ev tipi, oda duzeni ve tarih bilgisini gir. Istersen fotograflarini ekle.</p>
+                    </article>
+                    <article class="home-step">
+                        <div class="home-step-no">2</div>
+                        <h3>Ilanini yayinla</h3>
+                        <p>Butce araligini belirle. Hizmet verenler net bir ilan gorup teklif gondersin.</p>
+                    </article>
+                    <article class="home-step">
+                        <div class="home-step-no">3</div>
+                        <h3>Teklifini sec</h3>
+                        <p>Fiyat, profil ve puani ayni ekranda karsilastir. Icine sinen kisiyle anlas.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="kategoriler" class="home-section home-cats">
+            <div class="container">
+                <div class="home-head">
+                    <h2>Hangi hizmeti ariyorsun?</h2>
+                    <p>Tek dokunusla ilgili kategoriye gecip uygun ilanlari gorebilirsin.</p>
+                </div>
+                <div class="cat-grid">
+                    <?php foreach ($categories as $cat): ?>
+                        <a href="listings/browse?cat=<?= e($cat['slug']) ?>" class="cat-item">
+                            <div class="cat-icon"><?= $cat['icon'] ?></div>
+                            <div class="cat-name"><?= e($cat['name']) ?></div>
+                        </a>
+                    <?php endforeach; ?>
+                    <?php if (empty($categories)): ?>
+                        <a href="listings/browse?cat=ev-temizligi" class="cat-item"><div class="cat-icon">ET</div><div class="cat-name">Ev Temizligi</div></a>
+                        <a href="listings/browse?cat=cam-pencere" class="cat-item"><div class="cat-icon">CP</div><div class="cat-name">Cam ve Pencere</div></a>
+                        <a href="listings/browse?cat=utu-camasir" class="cat-item"><div class="cat-icon">UC</div><div class="cat-name">Utu ve Camasir</div></a>
+                        <a href="listings/browse?cat=bulasik" class="cat-item"><div class="cat-icon">BL</div><div class="cat-name">Bulasik</div></a>
+                        <a href="listings/browse?cat=bahce" class="cat-item"><div class="cat-icon">BH</div><div class="cat-name">Bahce</div></a>
+                        <a href="listings/browse?cat=koltuk-yikama" class="cat-item"><div class="cat-icon">KY</div><div class="cat-name">Koltuk Yikama</div></a>
+                        <a href="listings/browse?cat=genel-temizlik" class="cat-item"><div class="cat-icon">GT</div><div class="cat-name">Genel Temizlik</div></a>
+                        <a href="listings/browse" class="cat-item"><div class="cat-icon">DG</div><div class="cat-name">Diger</div></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
+
+        <?php if (!empty($listings)): ?>
+            <section class="home-section home-listings">
+                <div class="container">
+                    <div class="section-topline">
+                        <div class="home-head">
+                            <h2>Guncel ilanlar</h2>
+                            <p>Bugun yayinlanan ilanlardan bazi ornekler.</p>
+                        </div>
+                        <a href="listings/browse" class="btn btn-outline">Tum ilanlar</a>
+                    </div>
+                    <div class="grid-3">
+                        <?php foreach ($listings as $listing): ?>
+                            <div class="card listing-card">
+                                <?php if (!empty($listing['home_photo'])): ?>
+                                    <div class="card-img-placeholder" style="background:url('<?= APP_URL ?>/uploads/homes/<?= $listing['home_photo'] ?>') center/cover no-repeat; position:relative; border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+                                        <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(17,39,51,0.76)); border-radius:var(--radius-lg) var(--radius-lg) 0 0;"></div>
+                                        <span style="position:absolute; bottom:12px; left:12px; background:rgba(255,255,255,0.9); color:var(--primary); padding:6px 12px; border-radius:20px; font-size:0.82rem; font-weight:700; display:flex; gap:8px; align-items:center;">
+                                            <span><?= $listing['cat_icon'] ?></span> <?= e($listing['cat_name']) ?>
+                                        </span>
+                                    </div>
+                                    <div class="card-content">
+                                <?php else: ?>
+                                    <div class="card-img-placeholder"><?= $listing['cat_icon'] ?></div>
+                                    <div class="card-content">
+                                        <div class="listing-cat"><?= $listing['cat_icon'] ?> <?= e($listing['cat_name']) ?></div>
+                                <?php endif; ?>
+                                    <div class="listing-title"><?= e($listing['title']) ?></div>
+                                    <div class="listing-meta">
+                                        <span>Sehir <?= e($listing['city']) ?></span>
+                                        <span>Ev <?= e($listing['room_config']) ?></span>
+                                        <span>Tarih <?= date('d M', strtotime($listing['preferred_date'])) ?></span>
+                                    </div>
+                                    <div class="listing-footer">
+                                        <?php if ($listing['budget']): ?>
+                                            <span class="listing-budget"><?= formatMoney($listing['budget']) ?></span>
+                                        <?php else: ?>
+                                            <span style="color:var(--text-muted);font-size:0.85rem;">Butce belirsiz</span>
+                                        <?php endif; ?>
+                                        <a href="listings/detail?id=<?= $listing['id'] ?>" class="btn btn-primary btn-sm">Detayi Gor</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <section class="home-section home-cta">
+            <div class="container">
+                <div class="home-cta-box">
+                    <div>
+                        <h2>Evin icin duzenli bir baslangic yap</h2>
+                        <p>Ucretsiz kayit ol, ilk ilanini ac ve teklifleri net bir ekranda karsilastir.</p>
+                    </div>
+                    <div class="cta-actions">
+                        <a href="register" class="btn btn-primary btn-lg">Ev Sahibiyim</a>
+                        <a href="register?role=worker" class="btn btn-outline btn-lg">Hizmet Vermek Istiyorum</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="grid-4" style="gap:40px;">
+                <div style="grid-column:span 2;">
+                    <div class="footer-logo">Temizci Burada</div>
+                    <p class="footer-desc">Evinin duzenine onem verenlerle, isini ozenle yapan hizmet verenleri ayni cizgide bulusturan yeni nesil temizlik platformu.</p>
+                </div>
+                <div>
+                    <div class="footer-title">Platform</div>
+                    <div class="footer-links">
+                        <a href="listings/browse">Ilanlar</a>
+                        <a href="register">Kayit Ol</a>
+                        <a href="login">Giris Yap</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-title">Iletisim</div>
+                    <div class="footer-links">
+                        <a href="mailto:info@temizciburada.com">info@temizciburada.com</a>
+                        <a href="kvkk">KVKK</a>
+                        <a href="cerez-politikasi">Cerez Politikasi</a>
+                        <a href="destek">Destek</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <?= date('Y') ?> Temizci Burada · Tum haklari saklidir. · <a href="kvkk" style="color:rgba(255,255,255,0.65);">KVKK</a> · <a href="cerez-politikasi" style="color:rgba(255,255,255,0.65);">Cerez Politikasi</a></p>
+            </div>
+        </div>
+    </footer>
+    <div id="cookieBanner" class="cookie-banner">
+        <p>Bu site yalnizca oturum yonetimi icin zorunlu cerezler kullanir. <a href="cerez-politikasi">Cerez Politikasi</a> ve <a href="kvkk">KVKK Aydinlatma Metni</a></p>
+        <button id="cookieAccept" onclick="acceptCookies()" class="btn btn-primary btn-sm">Anladim, Kabul Et</button>
+    </div>
+    <script>
+        function acceptCookies() {
+            localStorage.setItem('cookie_consent', '1');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+        if (!localStorage.getItem('cookie_consent')) {
+            document.getElementById('cookieBanner').style.display = 'flex';
+        }
+    </script>
+    <script src="assets/js/app.js?v=5.2"></script>
+    <script src="assets/js/theme.js"></script>
+    <script>
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        });
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const SW_RESET_KEY = 'tb_sw_reset_v2';
+                const runRegister = () => {
+                    navigator.serviceWorker.register('/sw.js?v=7')
+                        .then((registration) => {
+                            console.log('SW Registered: ', registration.scope);
+                        })
+                        .catch((error) => {
+                            console.log('SW Registration Failed: ', error);
+                        });
+                };
+
+                if (!localStorage.getItem(SW_RESET_KEY)) {
+                    localStorage.setItem(SW_RESET_KEY, '1');
+                    navigator.serviceWorker.getRegistrations()
+                        .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+                        .then(() => (window.caches ? caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))) : Promise.resolve()))
+                        .finally(() => {
+                            runRegister();
+                            window.location.reload();
+                        });
+                } else {
+                    runRegister();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

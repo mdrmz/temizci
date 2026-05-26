@@ -1,0 +1,123 @@
+﻿// ============================================================
+// Temizci Burada - Service Worker (PWA)
+// ============================================================
+
+const CACHE_VERSION = 'temizci-v9';
+const STATIC_ASSETS = [
+    '/assets/css/style.css',
+    '/assets/css/dark-mode.css',
+    '/assets/js/app.js',
+    '/assets/js/theme.js',
+    '/logo.png',
+    '/manifest.json',
+];
+
+function offlineHtmlResponse() {
+    return new Response(
+        '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Cevrimdisi - Temizci Burada</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#2b1746;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px}h1{font-size:2rem;margin-bottom:12px}.icon{font-size:3rem;margin-bottom:16px}p{opacity:.8;max-width:420px}button{margin-top:22px;background:linear-gradient(135deg,#6d43ba,#b06ce8);border:none;color:#fff;padding:12px 28px;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer}</style></head><body><div><div class="icon">WF</div><h1>Cevrimdisisiniz</h1><p>Baglantiniz su an yok. Internet geldikten sonra sayfayi yeniden yukleyin.</p><button onclick="location.reload()">Tekrar Dene</button></div></body></html>',
+        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    );
+}
+
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_VERSION)
+            .then((cache) => cache.addAll(STATIC_ASSETS))
+            .then(() => self.skipWaiting())
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) =>
+            Promise.all(
+                keys
+                    .filter((key) => key !== CACHE_VERSION)
+                    .map((key) => caches.delete(key))
+            )
+        ).then(() => self.clients.claim())
+    );
+});
+
+self.addEventListener('fetch', (event) => {
+    const { request } = event;
+    if (request.method !== 'GET') return;
+
+    const url = new URL(request.url);
+    if (url.origin !== self.location.origin) return;
+
+    // API veya bildirim endpointlerini cache akisinin disinda birak.
+    if (url.pathname.startsWith('/api/') || url.pathname.includes('notifications_ajax')) {
+        return;
+    }
+
+    // HTML gezinmeleri: daima once agdan al (stale index sorununu cozer).
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    const clone = response.clone();
+                    caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+                    return response;
+                })
+                .catch(async () => {
+                    const cached = await caches.match(request);
+                    if (cached) return cached;
+                    return offlineHtmlResponse();
+                })
+        );
+        return;
+    }
+
+    // Statik dosyalar: cache-first (path bazli, query farkini yoksayar).
+    if (STATIC_ASSETS.includes(url.pathname)) {
+        event.respondWith(
+            caches.match(url.pathname).then(async (cached) => {
+                if (cached) return cached;
+                try {
+                    const response = await fetch(request);
+                    const clone = response.clone();
+                    caches.open(CACHE_VERSION).then((cache) => cache.put(url.pathname, clone));
+                    return response;
+                } catch (err) {
+                    return offlineHtmlResponse();
+                }
+            })
+        );
+        return;
+    }
+
+    // Diger GET istekleri: network-first.
+    event.respondWith(
+        fetch(request)
+            .then((response) => {
+                const clone = response.clone();
+                caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+                return response;
+            })
+            .catch(async () => {
+                const cached = await caches.match(request);
+                if (cached) return cached;
+                return offlineHtmlResponse();
+            })
+    );
+});
+
+self.addEventListener('push', (event) => {
+    const data = event.data ? event.data.json() : {};
+    const title = data.title || 'Temizci Burada';
+    const options = {
+        body: data.body || 'Yeni bir bildiriminiz var.',
+        icon: '/logo.png',
+        badge: '/logo.png',
+        vibrate: [100, 50, 100],
+        data: { url: data.url || '/' },
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const targetUrl = event.notification.data.url || '/';
+    event.waitUntil(clients.openWindow(targetUrl));
+});
