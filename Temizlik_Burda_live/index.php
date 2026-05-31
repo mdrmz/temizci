@@ -10,6 +10,7 @@ if (isLoggedIn()) {
 
 try {
     $db = getDB();
+    expireStaleListings($db);
     $stmt = $db->query("
         SELECT l.*, c.name AS cat_name, c.icon AS cat_icon,
                u.name AS owner_name,
@@ -19,6 +20,7 @@ try {
         JOIN users u ON l.user_id = u.id
         JOIN homes h ON l.home_id = h.id
         WHERE l.status = 'open'
+          AND (l.expires_at IS NULL OR l.expires_at > NOW())
         ORDER BY l.created_at DESC
         LIMIT 6
     ");
@@ -1353,9 +1355,52 @@ $trustSignals = [
             border-color: #ffffff;
         }
 
+        .home-mobile-app {
+            padding: 44px 0 10px;
+        }
+
+        .home-mobile-app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .home-mobile-app-card {
+            border-radius: 20px;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid rgba(99, 64, 179, 0.12);
+            box-shadow: 0 18px 24px rgba(16, 37, 59, 0.08);
+        }
+
+        .home-mobile-app-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .home-mobile-app-card .card-body {
+            padding: 18px 16px 20px;
+        }
+
+        .home-mobile-app-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #f5f3ff;
+            color: #4f3c8b;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 1080px) {
             body.home-lab .home-hero-grid,
-            .home-planner-grid {
+            .home-planner-grid,
+            .home-mobile-app-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -2007,6 +2052,32 @@ $trustSignals = [
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-section home-mobile-app">
+            <div class="container">
+                <div class="home-head">
+                    <div class="home-eyebrow">Mobil uygulama</div>
+                    <h2>Temizci Burada mobil uygulamasi yakinda</h2>
+                    <p>Talebi mobilden acmak, teklifleri takip etmek ve hizmeti daha hizli yonetmek icin mobil uygulama ekran goruntuleri hazirlandi.</p>
+                </div>
+                <div class="home-mobile-app-grid">
+                    <article class="home-mobile-app-card">
+                        <img src="assets/images/mobile-app-screenshot-1.png" alt="Mobil uygulama ekran goruntusu 1">
+                        <div class="card-body">
+                            <div class="home-mobile-app-tag">Yakında</div>
+                            <strong>Talep olusturma ekranı</strong>
+                        </div>
+                    </article>
+                    <article class="home-mobile-app-card">
+                        <img src="assets/images/mobile-app-screenshot-2.png" alt="Mobil uygulama ekran goruntusu 2">
+                        <div class="card-body">
+                            <div class="home-mobile-app-tag">Yakında</div>
+                            <strong>Teklif ve profil yonetimi</strong>
+                        </div>
+                    </article>
                 </div>
             </div>
         </section>
