@@ -420,7 +420,7 @@ export default function AdminPage() {
 
     setLoading(true);
     setError("");
-    Promise.all([
+    Promise.allSettled([
       getAdminOverview(session.token),
       getListings({ page: 1, status: "all", sort: "newest" }),
       getSupportTickets(session.token, { mode: "all", limit: 80 }),
@@ -429,16 +429,48 @@ export default function AdminPage() {
       getAdApplications(session.token, { mode: "all", limit: 120 }),
     ])
       .then(([adminRes, listingRes, supportRes, reportRes, sellerRes, adsRes]) => {
-        setUsers(adminRes.users);
-        setCategories(adminRes.categories);
-        setListings(listingRes.data);
-        setTickets(supportRes.data);
-        setReports(reportRes.data);
-        setSellerApplications(sellerRes.data);
-        setAdApplications(adsRes.data);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Admin verileri yüklenemedi.");
+        const failedSections: string[] = [];
+
+        if (adminRes.status === "fulfilled") {
+          setUsers(adminRes.value.users);
+          setCategories(adminRes.value.categories);
+        } else {
+          failedSections.push("kullanıcı ve kategori");
+        }
+
+        if (listingRes.status === "fulfilled") {
+          setListings(listingRes.value.data);
+        } else {
+          failedSections.push("ilan");
+        }
+
+        if (supportRes.status === "fulfilled") {
+          setTickets(supportRes.value.data);
+        } else {
+          failedSections.push("destek");
+        }
+
+        if (reportRes.status === "fulfilled") {
+          setReports(reportRes.value.data);
+        } else {
+          failedSections.push("şikayet");
+        }
+
+        if (sellerRes.status === "fulfilled") {
+          setSellerApplications(sellerRes.value.data);
+        } else {
+          failedSections.push("satıcı başvurusu");
+        }
+
+        if (adsRes.status === "fulfilled") {
+          setAdApplications(adsRes.value.data);
+        } else {
+          failedSections.push("reklam başvurusu");
+        }
+
+        if (failedSections.length > 0) {
+          setError(`Bazı admin verileri yüklenemedi: ${failedSections.join(", ")}.`);
+        }
       })
       .finally(() => setLoading(false));
   }, [session, isAdmin]);
