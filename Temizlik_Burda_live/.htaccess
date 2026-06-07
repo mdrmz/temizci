@@ -19,7 +19,9 @@ RewriteEngine On
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
 # Next.js app routes that must not fall back to legacy PHP files.
-RewriteRule ^(admin|destek|satici|bildirimler|favorites|guvenlik)/?$ http://127.0.0.1:3001/$1 [P,L]
+RewriteRule ^(admin|destek|satici|bildirimler|favorites|guvenlik|hizmet)(/.*)?$ http://127.0.0.1:3001/$1$2 [P,L]
+RewriteRule ^(login|register|reklam-ver|listings)/?$ http://127.0.0.1:3001/$1 [P,L]
+RewriteRule ^listings/(new|[0-9]+)(/.*)?$ http://127.0.0.1:3001/listings/$1$2 [P,L]
 RewriteRule ^admin/login/?$ /login [R=302,L]
 RewriteRule ^admin/(index|users|categories|analytics|tickets|ticket_view|backups)/?$ /admin [R=302,L]
 

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { getListings } from "@/lib/api";
+import { getCategories, getListings } from "@/lib/api";
 import { CITY_TARGETS } from "@/lib/geo";
 
 const SITE_URL = "https://temizciburada.com";
@@ -31,6 +31,24 @@ async function fetchAllListingsForSitemap() {
   }
 
   return all;
+}
+
+async function fetchCategorySlugsForSitemap() {
+  const fallback = [
+    "ev-temizligi",
+    "cam-pencere",
+    "utu-camasir",
+    "koltuk-yikama",
+    "genel-temizlik",
+    "insaat-temizligi",
+  ];
+  const categories = await getCategories().catch(() => null);
+  const slugs = (categories?.data ?? [])
+    .map((category) => category.slug)
+    .filter((slug) => slug !== "")
+    .slice(0, 12);
+
+  return slugs.length > 0 ? slugs : fallback;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -111,6 +129,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
+  const categorySlugs = await fetchCategorySlugsForSitemap();
+  const serviceCityRoutes: MetadataRoute.Sitemap = CITY_TARGETS.flatMap((city) =>
+    categorySlugs.map((service) => ({
+      url: `${SITE_URL}/hizmet/${city.slug}/${service}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.72,
+    })),
+  );
+
   const listings = await fetchAllListingsForSitemap();
   const listingRoutes: MetadataRoute.Sitemap = listings.map((listing) => ({
     url: `${SITE_URL}/listings/${listing.id}`,
@@ -119,5 +147,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...cityRoutes, ...listingRoutes];
+  return [...staticRoutes, ...cityRoutes, ...serviceCityRoutes, ...listingRoutes];
 }

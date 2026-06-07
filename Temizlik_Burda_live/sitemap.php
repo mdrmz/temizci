@@ -100,6 +100,14 @@ foreach ($topCities as $cityName) {
             'changefreq' => 'daily',
             'priority' => '0.78',
         ];
+        foreach (array_slice($serviceSlugs, 0, 12) as $serviceSlug) {
+            $landingUrls[] = [
+                'loc' => $baseUrl . '/hizmet/' . rawurlencode($slug) . '/' . rawurlencode($serviceSlug),
+                'lastmod' => $today,
+                'changefreq' => 'daily',
+                'priority' => '0.72',
+            ];
+        }
     }
     foreach ($serviceSlugs as $slug) {
         $landingUrls[] = [
