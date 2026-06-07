@@ -1,8 +1,9 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
-if (session_status() === PHP_SESSION_NONE)
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
 $baseUrl = canonicalBaseUrl();
 ?>
 <!DOCTYPE html>
@@ -13,7 +14,7 @@ $baseUrl = canonicalBaseUrl();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | Temizci Burada</title>
     <meta name="description"
-        content="Privacy Policy for the Temizci Burada mobile app and web platform, including collected data, usage, sharing, retention, deletion, and user rights.">
+        content="Privacy Policy for the Temizci Burada mobile app and related services operated by Piksel Analitik.">
     <link rel="canonical" href="<?= e($baseUrl . '/privacy') ?>">
     <link rel="stylesheet" href="assets/css/style.css?v=5.9">
     <link rel="stylesheet" href="assets/css/dark-mode.css">
@@ -41,13 +42,6 @@ $baseUrl = canonicalBaseUrl();
             font-weight: 700;
             margin: 32px 0 10px;
             color: var(--primary);
-        }
-
-        .legal-page h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 24px 0 8px;
-            color: var(--text-primary);
         }
 
         .legal-page p,
@@ -80,31 +74,7 @@ $baseUrl = canonicalBaseUrl();
             color: var(--primary);
             text-decoration: none;
         }
-
-        .language-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 0 0 28px;
-        }
-
-        .language-nav a {
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 7px 12px;
-            text-decoration: none;
-        }
-
-        .language-note {
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            line-height: 1.7;
-        }
     </style>
-
     <link rel="icon" href="/logo.png" type="image/png">
     <link rel="apple-touch-icon" href="/logo.png">
     <meta property="og:image" content="<?= e($baseUrl . '/logo.png') ?>">
@@ -122,164 +92,198 @@ $baseUrl = canonicalBaseUrl();
         </div>
     </nav>
 
-    <div class="legal-page">
+    <main class="legal-page">
         <div class="legal-breadcrumb">
             <a href="index">Home</a> / Privacy Policy
         </div>
 
         <h1>Privacy Policy</h1>
-        <div class="update-date">Last updated: <?= date('F d, Y') ?></div>
+        <div class="update-date">Effective date: 2026-06-07</div>
 
-        <div class="language-nav" aria-label="Languages">
-            <a href="#english">English</a>
-            <a href="#turkish">Türkçe</a>
-            <a href="#german">Deutsch</a>
-            <a href="#arabic">العربية</a>
+        <div class="highlight-box">
+            This privacy policy applies to the Temizci Burada app for mobile devices, together with any related
+            services operated by Piksel Analitik (collectively, the "Application"). Piksel Analitik is hereby referred
+            to as the "Service Provider".
         </div>
 
-        <p class="language-note">
-            This page is the official privacy policy for the Temizci Burada mobile app and web platform. The English
-            version is provided first for app store review and international users. Other language sections are provided
-            for convenience.
+        <h2>Information Collection and Use</h2>
+        <p>The Application collects information when you download and use it. This information may include:</p>
+        <ul>
+            <li>Your device's Internet Protocol address.</li>
+            <li>The pages of the Application that you visit, the time and date of your visit, and the time spent on those pages.</li>
+            <li>The time spent on the Application.</li>
+            <li>The mobile operating system you use.</li>
+        </ul>
+
+        <h2>Cookies and Tracking Technologies</h2>
+        <p>
+            The Application or its third-party SDKs may use cookies, SDKs, pixels, and similar technologies to support
+            functionality, analytics, or service delivery. Where required by applicable law, the Service Provider will
+            obtain consent before using non-essential tracking technologies.
         </p>
 
-        <section id="english" lang="en">
-            <div class="highlight-box">
-                This Privacy Policy applies to the <strong>Temizci Burada</strong> mobile application and
-                <strong>temizciburada.com</strong> web platform. It explains what personal data we collect, why we use it,
-                how we share it, how long we keep it, and how users can request access, correction, or deletion.
-            </div>
+        <h2>Location Information</h2>
+        <p>
+            The Application collects your device's location to provide location-based features, improve the Application,
+            and support related services.
+        </p>
+        <ul>
+            <li>Geolocation Services: The Service Provider may use location data to provide location-based features or content.</li>
+            <li>Analytics and Improvements: Aggregated location data may help the Service Provider understand usage patterns and improve performance.</li>
+            <li>Third-Party Services: Location data may be shared with third-party services used to support Application functionality, subject to this privacy policy and applicable law.</li>
+        </ul>
 
-            <h2>1. Data Controller and Contact</h2>
-            <p>
-                Temizci Burada is a platform that connects users requesting home services with service providers.
-                For privacy questions or user data requests, contact us at
-                <a href="mailto:kvkk@temizciburada.com">kvkk@temizciburada.com</a>.
-            </p>
+        <h2>Your Rights</h2>
+        <p>
+            You may request access to, correction of, or deletion of your personal data held by the Service Provider.
+            To exercise these rights, or to withdraw consent where processing is based on consent, contact the Service
+            Provider at <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>.
+        </p>
 
-            <h2>2. Personal Data We Collect</h2>
-            <ul>
-                <li><strong>Identity data:</strong> first name and last name.</li>
-                <li><strong>Contact data:</strong> email address and phone number.</li>
-                <li><strong>Account data:</strong> user role, profile photo, account preferences, and login/session data.</li>
-                <li><strong>Service and listing data:</strong> service requests, listings, offers, messages, and support requests.</li>
-                <li><strong>Location data:</strong> city, district, and address information entered by the user for service delivery.</li>
-                <li><strong>Technical data:</strong> IP address, browser/device information, security logs, and fraud prevention records.</li>
-            </ul>
+        <h2>Your California Privacy Rights (CCPA/CPRA)</h2>
+        <p>
+            If you are a California resident, you have the right to know what personal information is collected, the
+            right to delete personal information, the right to opt out of the sale or sharing of personal information,
+            and the right to non-discrimination for exercising these rights. To exercise your CCPA/CPRA rights, contact
+            the Service Provider at
+            <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>.
+        </p>
 
-            <h2>3. How We Use Personal Data</h2>
-            <ul>
-                <li>To create and manage user accounts.</li>
-                <li>To provide listings, offers, service requests, support, and platform communication.</li>
-                <li>To help users and service providers contact each other about a requested service.</li>
-                <li>To protect the platform against abuse, fraud, unauthorized access, and security incidents.</li>
-                <li>To comply with legal obligations and resolve disputes.</li>
-                <li>To maintain, improve, and operate the app and website.</li>
-            </ul>
+        <p>
+            The Service Provider may use the information you provide to send important information, required notices,
+            and, where permitted by law, marketing communications.
+        </p>
+        <p>
+            For a better experience while using the Application, the Service Provider may require you to provide certain
+            personally identifiable information, including but not limited to email, address, and phone number. The
+            information the Service Provider requests will be retained and used as described in this privacy policy.
+        </p>
 
-            <h2>4. Sharing and Disclosure</h2>
-            <p>
-                We do not sell personal data. We may share only the data required to operate the service, comply with
-                law, respond to valid legal requests, prevent fraud, or provide user support. For example, information
-                necessary for a service request may be shared between the requesting user and the relevant service
-                provider.
-            </p>
+        <h2>Third Party Access</h2>
+        <p>
+            Only aggregated, anonymized data is periodically transmitted to external services to aid the Service
+            Provider in improving the Application and their service. The Service Provider may share your information
+            with third parties in the ways that are described in this privacy statement.
+        </p>
 
-            <h2>5. Third-Party Services and SDKs</h2>
-            <p>
-                We may use technical service providers for hosting, security, email delivery, analytics, or maintenance.
-                These providers process data only as needed to provide their services to Temizci Burada. We do not use
-                behavioral advertising profiling, third-party advertising cookies, or data sale practices.
-            </p>
+        <h2>International Data Transfers</h2>
+        <p>
+            The Service Provider or its third-party service providers may transfer personal data to countries outside
+            your country of residence, including outside the European Economic Area (EEA). Where applicable law requires
+            safeguards for international transfers, the Service Provider will use appropriate mechanisms.
+        </p>
+        <ul>
+            <li>Standard Contractual Clauses (SCCs) approved by the European Commission.</li>
+            <li>Adequacy decisions or other legally recognized transfer mechanisms.</li>
+            <li>Your consent, where required and legally permitted.</li>
+        </ul>
+        <p>
+            Data protection laws in other countries may differ from those in your jurisdiction. Where required by law,
+            the Service Provider will apply appropriate safeguards and obtain any consent required for the transfer.
+        </p>
 
-            <h2>6. Cookies and Similar Technologies</h2>
-            <p>
-                The platform uses only necessary cookies for session management, security, and core functionality. More
-                information is available in our <a href="cerez-politikasi">Cookie Policy</a>.
-            </p>
+        <h2>Third-Party Service Providers</h2>
+        <p>
+            Please note that the Application utilizes third-party services that have their own Privacy Policy about
+            handling data. Below are the links to the Privacy Policy of the third-party service providers used by the
+            Application:
+        </p>
+        <ul>
+            <li><a href="https://www.google.com/policies/privacy/" rel="noopener noreferrer" target="_blank">Google Play Services</a></li>
+        </ul>
 
-            <h2>7. Data Retention and Deletion</h2>
-            <ul>
-                <li>Account and transaction data may be stored while the account remains active.</li>
-                <li>After an account deletion request, personal data is deleted or anonymized within 30 days unless retention is legally required.</li>
-                <li>Records required for legal compliance, security, fraud prevention, or dispute resolution may be retained for the applicable legal period.</li>
-            </ul>
+        <p>The Service Provider may disclose User Provided and Automatically Collected Information:</p>
+        <ul>
+            <li>As required by law, such as to comply with a subpoena, or similar legal process.</li>
+            <li>When they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request.</li>
+            <li>With their trusted services providers who work on their behalf, do not have an independent use of the information the Service Provider discloses to them, and have agreed to adhere to the rules set forth in this privacy statement.</li>
+        </ul>
 
-            <h2>8. User Rights</h2>
-            <p>
-                Users may request access, correction, deletion, restriction, objection, and information about data
-                processing by emailing <a href="mailto:kvkk@temizciburada.com">kvkk@temizciburada.com</a>. Requests are
-                reviewed and answered within the legally required period.
-            </p>
+        <h2>Opt-Out Rights</h2>
+        <p>
+            You can stop further collection of information from your mobile device by uninstalling the Application.
+            Uninstalling will stop the Application from collecting data from your device, but it does not automatically
+            delete information that has already been transmitted to the Service Provider or to third parties.
+        </p>
+        <p>
+            To request deletion of your personal data, to withdraw consent, or to exercise any of your rights, contact
+            the Service Provider at
+            <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>.
+        </p>
 
-            <h2>9. Children</h2>
-            <p>
-                Temizci Burada is not directed to children. Users under 18 are not intended to create accounts or submit
-                service requests on their own.
-            </p>
+        <h2>Data Retention Policy</h2>
+        <p>The Service Provider retains personal data based on its necessity for the stated purposes:</p>
+        <ul>
+            <li>User Provided Data: Retained for the duration of your use of the Application plus 12 months thereafter, unless longer retention is required by law.</li>
+            <li>Automatically Collected Data: Retained for up to 24 months from collection, unless longer retention is required for legal compliance.</li>
+            <li>Aggregated and Anonymized Data: Retained indefinitely as it no longer identifies you.</li>
+            <li>Data required for legal compliance: Retained as long as required by applicable law.</li>
+        </ul>
+        <p>
+            You may request deletion of your personal data, subject to any legal obligation to retain it. If you want
+            the Service Provider to delete User Provided Data submitted through the Application, please contact them at
+            <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>. Please note that
+            some User Provided Data may be required for the Application to function properly.
+        </p>
 
-            <h2>10. Security</h2>
-            <p>
-                We use technical and administrative safeguards such as HTTPS, access controls, password hashing, session
-                security, CSRF protection, logging, and measures against unauthorized access.
-            </p>
+        <h2>Children</h2>
+        <p>
+            The Application is not intended for children under 16 years of age, or such higher age as required by
+            applicable law. The Service Provider does not knowingly solicit data from children or market the Application
+            to them.
+        </p>
+        <p>
+            Where parental or guardian consent is required under applicable law, the Application is not intended for use
+            without that consent. The Service Provider does not knowingly collect personally identifiable information
+            from children under 16 years of age in violation of applicable law. In the event the Service Provider
+            discovers that a child has provided personal information, the Service Provider will immediately delete this
+            from their servers. If you are a parent or guardian and you are aware that your child has provided the
+            Service Provider with personal information, please contact the Service Provider
+            (<a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>) so that they will
+            be able to take the necessary actions.
+        </p>
 
-            <h2>11. Changes</h2>
-            <p>
-                We may update this Privacy Policy when our services or legal requirements change. The current version is
-                always published on this page.
-            </p>
-        </section>
+        <h2>Security</h2>
+        <p>
+            The Service Provider is concerned about safeguarding the confidentiality of your information. The Service
+            Provider provides physical, electronic, and procedural safeguards to protect information the Service
+            Provider processes and maintains.
+        </p>
 
-        <section id="turkish" lang="tr">
-            <h2>Türkçe Gizlilik Politikası Özeti</h2>
-            <p>
-                Bu politika, Temizci Burada mobil uygulaması ve temizciburada.com web platformu için geçerlidir.
-                Ad, soyad, e-posta, telefon, kullanıcı rolü, profil bilgileri, ilan/talep/teklif bilgileri, hizmet
-                adresi bilgileri, IP adresi ve güvenlik kayıtları gibi veriler hizmetin sunulması, hesap yönetimi,
-                kullanıcı iletişimi, güvenlik, destek ve yasal yükümlülükler için işlenir.
-            </p>
-            <p>
-                Kişisel veriler satılmaz. Hizmetin kurulabilmesi için gerekli bilgiler ilgili kullanıcılarla, teknik
-                hizmet sağlayıcılarla veya yasal zorunluluklar kapsamında yetkili kurumlarla paylaşılabilir. Hesap silme
-                talebinden sonra kişisel veriler, yasal saklama yükümlülükleri saklı kalmak üzere en geç 30 gün içinde
-                silinir veya anonim hale getirilir. Talepleriniz için
-                <a href="mailto:kvkk@temizciburada.com">kvkk@temizciburada.com</a> adresine yazabilirsiniz.
-            </p>
-        </section>
+        <h2>Data Breach Notification</h2>
+        <p>
+            If a data breach occurs that affects your personal data, the Service Provider will notify you in accordance
+            with applicable legal requirements, including, where required, providing information about the nature of the
+            breach and the steps being taken to address it.
+        </p>
 
-        <section id="german" lang="de">
-            <h2>Kurze Datenschutzerklärung auf Deutsch</h2>
-            <p>
-                Diese Datenschutzerklärung gilt für die mobile App Temizci Burada und die Website temizciburada.com.
-                Wir verarbeiten personenbezogene Daten wie Name, E-Mail, Telefonnummer, Kontoinformationen,
-                Serviceanfragen, Angebote, Standort-/Adressangaben und technische Sicherheitsdaten, um den Dienst
-                bereitzustellen, Nutzerkonten zu verwalten, Sicherheit zu gewährleisten, Support zu leisten und
-                gesetzliche Pflichten zu erfüllen.
-            </p>
-            <p>
-                Wir verkaufen keine personenbezogenen Daten. Daten können nur soweit erforderlich mit beteiligten Nutzern,
-                technischen Dienstleistern oder zuständigen Behörden geteilt werden. Lösch- und Auskunftsanfragen können
-                an <a href="mailto:kvkk@temizciburada.com">kvkk@temizciburada.com</a> gesendet werden.
-            </p>
-        </section>
+        <h2>Changes</h2>
+        <p>
+            The Service Provider may update this Privacy Policy from time to time. The Service Provider will notify you
+            of material changes by posting the updated Privacy Policy with an effective date. Where required by law, the
+            Service Provider will seek your consent to material changes before they take effect.
+        </p>
+        <p>
+            Previous versions of this Privacy Policy will be maintained and made available upon request by contacting
+            the Service Provider at
+            <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>.
+        </p>
 
-        <section id="arabic" lang="ar" dir="rtl">
-            <h2>ملخص سياسة الخصوصية باللغة العربية</h2>
-            <p>
-                تنطبق سياسة الخصوصية هذه على تطبيق Temizci Burada للهاتف المحمول وعلى موقع temizciburada.com. نقوم
-                بمعالجة بيانات مثل الاسم، البريد الإلكتروني، رقم الهاتف، معلومات الحساب، طلبات الخدمة، العروض، معلومات
-                الموقع أو العنوان، والبيانات التقنية الخاصة بالأمان من أجل تشغيل الخدمة، إدارة الحسابات، تقديم الدعم،
-                حماية المنصة، والامتثال للالتزامات القانونية.
-            </p>
-            <p>
-                لا نبيع البيانات الشخصية. قد تتم مشاركة البيانات فقط عند الحاجة لتقديم الخدمة، مع مزودي الخدمات التقنية،
-                أو عند وجود التزام قانوني. يمكن إرسال طلبات الوصول أو التصحيح أو الحذف إلى
-                <a href="mailto:kvkk@temizciburada.com">kvkk@temizciburada.com</a>.
-            </p>
-        </section>
+        <h2>Your Consent</h2>
+        <p>
+            Where processing is based on consent, you provide that consent by affirmatively opting in to the relevant
+            feature or action. You may withdraw consent at any time without affecting processing carried out before
+            withdrawal. Processing based on other lawful bases is carried out as described above.
+        </p>
 
-    </div>
+        <h2>Contact Us</h2>
+        <p>
+            If you have any questions regarding privacy while using the Application, or have questions about the
+            practices, please contact the Service Provider via email at
+            <a href="mailto:mehmet.durmaz@pikselanalitik.com">mehmet.durmaz@pikselanalitik.com</a>.
+        </p>
+    </main>
+
     <?php include 'includes/footer.php'; ?>
 </body>
 
