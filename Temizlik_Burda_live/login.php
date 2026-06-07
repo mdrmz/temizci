@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         redirect(APP_URL . '/listings/create?quick=1');
                     }
                     if (($user['role'] ?? '') === 'admin') {
-                        redirect(APP_URL . '/admin/index');
+                        redirect(APP_URL . '/admin');
                     }
                     redirect(APP_URL . '/dashboard');
                 } else {

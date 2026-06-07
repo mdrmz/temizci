@@ -16,6 +16,6 @@ $user = currentUser();
 // Check if user is an admin
 if (!$user || $user['role'] !== 'admin') {
     // Redirect non-admins to admin login
-    header('Location: /admin/login');
+    header('Location: /login');
     exit;
 }

@@ -18,6 +18,11 @@ RewriteEngine On
 # Sitemap XML alias (Search Console standard path)
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
+# Next.js app routes that must not fall back to legacy PHP files.
+RewriteRule ^(admin|destek|satici|bildirimler|favorites|guvenlik)/?$ http://127.0.0.1:3001/$1 [P,L]
+RewriteRule ^admin/login/?$ /login [R=302,L]
+RewriteRule ^admin/(index|users|categories|analytics|tickets|ticket_view|backups)/?$ /admin [R=302,L]
+
 # ============================================================
 # PHP Uzantılarını Gizleme (Pretty URLs)
 # ============================================================

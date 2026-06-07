@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { AdSlot } from "@/components/ad-slot";
-import { getUnreadMessageCount } from "@/lib/api";
+import { getNotificationUnreadCount, getUnreadMessageCount } from "@/lib/api";
 import { clearSession, getSession } from "@/lib/session";
 import { Session } from "@/lib/types";
 
@@ -33,6 +33,7 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
   const [session, setSessionState] = useState<Session | null>(null);
   const [isEmbeddedApp, setIsEmbeddedApp] = useState(initialEmbedded);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
     setSessionState(getSession());
@@ -64,19 +65,25 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
   useEffect(() => {
     if (!session) {
       setUnreadMessages(0);
+      setUnreadNotifications(0);
       return;
     }
 
     let cancelled = false;
     const fetchUnread = async () => {
       try {
-        const response = await getUnreadMessageCount(session.token);
+        const [messageRes, notificationRes] = await Promise.all([
+          getUnreadMessageCount(session.token),
+          getNotificationUnreadCount(session.token),
+        ]);
         if (!cancelled) {
-          setUnreadMessages(Math.max(0, response.count ?? 0));
+          setUnreadMessages(Math.max(0, messageRes.count ?? 0));
+          setUnreadNotifications(Math.max(0, notificationRes.count ?? 0));
         }
       } catch {
         if (!cancelled) {
           setUnreadMessages(0);
+          setUnreadNotifications(0);
         }
       }
     };
@@ -100,9 +107,19 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
         match: (path) => path === "/dashboard",
       },
       {
+        href: "/admin",
+        label: "Admin",
+        match: (path) => path === "/admin",
+      },
+      {
         href: "/listings",
         label: "İlanlar",
         match: (path) => path === "/listings" || /^\/listings\/\d+$/.test(path),
+      },
+      {
+        href: "/favorites",
+        label: "Favoriler",
+        match: (path) => path === "/favorites",
       },
       {
         href: "/offers",
@@ -113,6 +130,21 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
         href: "/messages",
         label: "Mesajlar",
         match: (path) => path === "/messages",
+      },
+      {
+        href: "/bildirimler",
+        label: "Bildirimler",
+        match: (path) => path === "/bildirimler",
+      },
+      {
+        href: "/destek",
+        label: "Destek",
+        match: (path) => path === "/destek",
+      },
+      {
+        href: "/guvenlik",
+        label: "Güvenlik",
+        match: (path) => path === "/guvenlik",
       },
       {
         href: "/homes",
@@ -128,6 +160,11 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
         href: "/profile",
         label: "Profil",
         match: (path) => path === "/profile",
+      },
+      {
+        href: "/satici",
+        label: "Satıcı",
+        match: (path) => path === "/satici",
       },
     ],
     [],
@@ -164,7 +201,11 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
     [],
   );
 
-  const visibleLinks = session ? userLinks : guestLinks;
+  const visibleLinks = session
+    ? session.user.role === "admin"
+      ? userLinks
+      : userLinks.filter((item) => item.href !== "/admin")
+    : guestLinks;
 
   const quickAction =
     session?.user.role === "homeowner"
@@ -175,7 +216,9 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
 
   const roleLabel =
     session?.user.role === "homeowner"
-      ? "Ev Sahibi"
+      ? session.user.customer_type === "corporate"
+        ? "Kurumsal Müşteri"
+        : "Ev Sahibi"
       : session?.user.role === "worker"
         ? "Hizmet Veren"
         : session?.user.role === "admin"
@@ -188,8 +231,11 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
     return href.includes("?") ? `${href}&app=1` : `${href}?app=1`;
   };
 
-  const unreadBadgeLabel = unreadMessages > 99 ? "99+" : String(unreadMessages);
+  const unreadMessageLabel = unreadMessages > 99 ? "99+" : String(unreadMessages);
+  const unreadNotificationLabel =
+    unreadNotifications > 99 ? "99+" : String(unreadNotifications);
   const showMessageBadge = Boolean(session) && unreadMessages > 0;
+  const showNotificationBadge = Boolean(session) && unreadNotifications > 0;
   const sideLeftSlot =
     process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDE_LEFT ??
     process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_LEFT ??
@@ -228,6 +274,7 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
             <nav className="hidden items-center gap-2 text-sm lg:flex">
               {visibleLinks.map((item) => {
                 const isMessages = item.href === "/messages";
+                const isNotifications = item.href === "/bildirimler";
                 return (
                   <Link
                     key={item.href}
@@ -237,14 +284,21 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
                     aria-label={
                       isMessages && showMessageBadge
                         ? `Mesajlar, ${unreadMessages} okunmamis`
-                        : undefined
+                        : isNotifications && showNotificationBadge
+                          ? `Bildirimler, ${unreadNotifications} okunmamis`
+                          : undefined
                     }
                   >
                     <span className="inline-flex items-center gap-1.5">
                       <span>{item.label}</span>
                       {isMessages && showMessageBadge ? (
                         <span className="rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
-                          {unreadBadgeLabel}
+                          {unreadMessageLabel}
+                        </span>
+                      ) : null}
+                      {isNotifications && showNotificationBadge ? (
+                        <span className="rounded-md border border-sky-200 bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">
+                          {unreadNotificationLabel}
                         </span>
                       ) : null}
                     </span>
@@ -275,6 +329,7 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
                       clearSession();
                       setSessionState(null);
                       setUnreadMessages(0);
+                      setUnreadNotifications(0);
                       router.push("/login");
                     }}
                   >
@@ -301,6 +356,7 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
             <nav className="mx-auto flex w-full max-w-[88rem] gap-2 overflow-x-auto pb-1 text-sm">
               {visibleLinks.map((item) => {
                 const isMessages = item.href === "/messages";
+                const isNotifications = item.href === "/bildirimler";
                 return (
                   <Link
                     key={`mobile-${item.href}`}
@@ -312,7 +368,12 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
                       <span>{item.label}</span>
                       {isMessages && showMessageBadge ? (
                         <span className="rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
-                          {unreadBadgeLabel}
+                          {unreadMessageLabel}
+                        </span>
+                      ) : null}
+                      {isNotifications && showNotificationBadge ? (
+                        <span className="rounded-md border border-sky-200 bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">
+                          {unreadNotificationLabel}
                         </span>
                       ) : null}
                     </span>
@@ -403,7 +464,7 @@ export function AppShell({ children, initialEmbedded = false }: AppShellProps) {
                   <span>Mesaj</span>
                   {showMessageBadge ? (
                     <span className="rounded-md border border-emerald-200 bg-emerald-50 px-1 py-0.5 text-[10px] font-bold text-emerald-700">
-                      {unreadBadgeLabel}
+                      {unreadMessageLabel}
                     </span>
                   ) : null}
                 </span>

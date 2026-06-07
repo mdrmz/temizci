@@ -5,11 +5,18 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  customer_type?: "individual" | "corporate";
+  company_name?: string | null;
   city?: string | null;
   phone?: string | null;
   bio?: string | null;
   avatar?: string | null;
   avatar_url?: string | null;
+  is_active?: number;
+  is_verified?: number;
+  rating?: number | null;
+  review_count?: number | null;
+  created_at?: string;
 }
 
 export interface Category {
@@ -37,6 +44,14 @@ export interface Home {
   created_at: string;
 }
 
+export interface ListingAttachment {
+  id: number;
+  file_path?: string;
+  url: string;
+  original_name?: string | null;
+  created_at?: string;
+}
+
 export interface Listing {
   id: number;
   user_id?: number;
@@ -51,6 +66,7 @@ export interface Listing {
   status?: string;
   view_count?: number;
   created_at: string;
+  expires_at?: string | null;
   cat_name?: string;
   cat_icon?: string | null;
   cat_slug?: string;
@@ -72,6 +88,9 @@ export interface Listing {
   viewer_has_offer?: boolean;
   viewer_is_owner?: boolean;
   viewer_can_message_owner?: boolean;
+  is_favorite?: boolean;
+  favorite_created_at?: string | null;
+  attachments?: ListingAttachment[];
 }
 
 export interface Offer {
