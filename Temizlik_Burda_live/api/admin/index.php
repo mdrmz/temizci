@@ -31,24 +31,32 @@ function handleAdminGet(PDO $db): void
         jsonError('Geçersiz admin modu.');
     }
 
+    $userFields = implode(', ', adminApiUserSelectFields($db));
+    $categoryIconField = adminApiColumnExists($db, 'categories', 'icon') ? 'c.icon' : "'📋' AS icon";
+    $categoryGroupFields = adminApiColumnExists($db, 'categories', 'icon')
+        ? 'c.id, c.name, c.slug, c.icon'
+        : 'c.id, c.name, c.slug';
+
     $users = $db->query("
-        SELECT id, name, email, phone, role, customer_type, company_name, city, is_active, is_verified, rating, review_count, created_at
+        SELECT $userFields
         FROM users
         ORDER BY id DESC
         LIMIT 120
     ")->fetchAll(PDO::FETCH_ASSOC);
 
     $categories = $db->query("
-        SELECT c.id, c.name, c.slug, c.icon, COUNT(l.id) AS listing_count
+        SELECT c.id, c.name, c.slug, $categoryIconField, COUNT(l.id) AS listing_count
         FROM categories c
         LEFT JOIN listings l ON l.category_id = c.id
-        GROUP BY c.id, c.name, c.slug, c.icon
+        GROUP BY $categoryGroupFields
         ORDER BY c.name ASC
     ")->fetchAll(PDO::FETCH_ASSOC);
 
     $summary = [
         'users' => adminApiCount($db, 'SELECT COUNT(*) FROM users'),
-        'active_users' => adminApiCount($db, 'SELECT COUNT(*) FROM users WHERE is_active = 1'),
+        'active_users' => adminApiColumnExists($db, 'users', 'is_active')
+            ? adminApiCount($db, 'SELECT COUNT(*) FROM users WHERE is_active = 1')
+            : adminApiCount($db, 'SELECT COUNT(*) FROM users'),
         'workers' => adminApiCount($db, "SELECT COUNT(*) FROM users WHERE role = 'worker'"),
         'homeowners' => adminApiCount($db, "SELECT COUNT(*) FROM users WHERE role = 'homeowner'"),
         'categories' => adminApiCount($db, 'SELECT COUNT(*) FROM categories'),
@@ -87,7 +95,7 @@ function handleAdminPost(PDO $db, int $adminId): void
 
         $fields = [];
         $params = [];
-        if (array_key_exists('is_active', $body)) {
+        if (array_key_exists('is_active', $body) && adminApiColumnExists($db, 'users', 'is_active')) {
             $fields[] = 'is_active = ?';
             $params[] = ((int) $body['is_active']) === 1 ? 1 : 0;
         }
@@ -106,8 +114,9 @@ function handleAdminPost(PDO $db, int $adminId): void
         $params[] = $userId;
         $db->prepare('UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = ?')->execute($params);
 
+        $userFields = implode(', ', adminApiUserSelectFields($db));
         $fresh = $db->prepare("
-            SELECT id, name, email, phone, role, customer_type, company_name, city, is_active, is_verified, rating, review_count, created_at
+            SELECT $userFields
             FROM users
             WHERE id = ?
         ");
@@ -131,25 +140,40 @@ function handleAdminPost(PDO $db, int $adminId): void
             $icon = '📋';
         }
 
+        $hasCategoryIcon = adminApiColumnExists($db, 'categories', 'icon');
         try {
             if ($id > 0) {
-                $db->prepare("UPDATE categories SET name = ?, slug = ?, icon = ? WHERE id = ?")
-                    ->execute([$name, $slug, $icon, $id]);
+                if ($hasCategoryIcon) {
+                    $db->prepare("UPDATE categories SET name = ?, slug = ?, icon = ? WHERE id = ?")
+                        ->execute([$name, $slug, $icon, $id]);
+                } else {
+                    $db->prepare("UPDATE categories SET name = ?, slug = ? WHERE id = ?")
+                        ->execute([$name, $slug, $id]);
+                }
             } else {
-                $db->prepare("INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)")
-                    ->execute([$name, $slug, $icon]);
+                if ($hasCategoryIcon) {
+                    $db->prepare("INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)")
+                        ->execute([$name, $slug, $icon]);
+                } else {
+                    $db->prepare("INSERT INTO categories (name, slug) VALUES (?, ?)")
+                        ->execute([$name, $slug]);
+                }
                 $id = (int) $db->lastInsertId();
             }
         } catch (PDOException $e) {
             jsonError('Kategori kaydedilemedi. Slug benzersiz olmalı.');
         }
 
+        $categoryIconField = $hasCategoryIcon ? 'c.icon' : "'📋' AS icon";
+        $categoryGroupFields = $hasCategoryIcon
+            ? 'c.id, c.name, c.slug, c.icon'
+            : 'c.id, c.name, c.slug';
         $stmt = $db->prepare("
-            SELECT c.id, c.name, c.slug, c.icon, COUNT(l.id) AS listing_count
+            SELECT c.id, c.name, c.slug, $categoryIconField, COUNT(l.id) AS listing_count
             FROM categories c
             LEFT JOIN listings l ON l.category_id = c.id
             WHERE c.id = ?
-            GROUP BY c.id, c.name, c.slug, c.icon
+            GROUP BY $categoryGroupFields
         ");
         $stmt->execute([$id]);
         jsonSuccess(['category' => normalizeAdminCategory($stmt->fetch(PDO::FETCH_ASSOC) ?: [])]);
@@ -178,6 +202,59 @@ function adminApiCount(PDO $db, string $sql): int
     } catch (Throwable $e) {
         return 0;
     }
+}
+
+function adminApiColumnExists(PDO $db, string $table, string $column): bool
+{
+    static $cache = [];
+    $key = $table . '.' . $column;
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
+    }
+
+    try {
+        $stmt = $db->prepare("
+            SELECT COUNT(*)
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND COLUMN_NAME = ?
+        ");
+        $stmt->execute([$table, $column]);
+        $cache[$key] = ((int) $stmt->fetchColumn()) > 0;
+    } catch (Throwable $e) {
+        $cache[$key] = false;
+    }
+
+    return $cache[$key];
+}
+
+function adminApiSelectColumn(PDO $db, string $table, string $column, string $fallback): string
+{
+    if (adminApiColumnExists($db, $table, $column)) {
+        return $column;
+    }
+
+    return $fallback . ' AS ' . $column;
+}
+
+function adminApiUserSelectFields(PDO $db): array
+{
+    return [
+        'id',
+        'name',
+        'email',
+        adminApiSelectColumn($db, 'users', 'phone', 'NULL'),
+        'role',
+        adminApiSelectColumn($db, 'users', 'customer_type', "'individual'"),
+        adminApiSelectColumn($db, 'users', 'company_name', 'NULL'),
+        adminApiSelectColumn($db, 'users', 'city', 'NULL'),
+        adminApiSelectColumn($db, 'users', 'is_active', '1'),
+        adminApiSelectColumn($db, 'users', 'is_verified', '0'),
+        adminApiSelectColumn($db, 'users', 'rating', '0'),
+        adminApiSelectColumn($db, 'users', 'review_count', '0'),
+        adminApiSelectColumn($db, 'users', 'created_at', 'NULL'),
+    ];
 }
 
 function normalizeAdminCategory(array $row): array
