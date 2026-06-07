@@ -3,6 +3,13 @@ Allow: /
 
 # Internal / management areas
 Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /messages
+Disallow: /offers
+Disallow: /homes
+Disallow: /profile
+Disallow: /listings/new
 Disallow: /includes/
 Disallow: /database/
 Disallow: /qa/

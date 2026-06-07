@@ -60,6 +60,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.3,
     },
+    {
+      url: `${SITE_URL}/privacy`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.35,
+    },
+    {
+      url: `${SITE_URL}/gizlilik-politikasi`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.35,
+    },
+    {
+      url: `${SITE_URL}/kvkk-aydinlatma`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.35,
+    },
+    {
+      url: `${SITE_URL}/cerez-politikasi`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/reklam-ver`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.55,
+    },
+    {
+      url: `${SITE_URL}/destek`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.45,
+    },
+    {
+      url: `${SITE_URL}/satici`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.45,
+    },
   ];
 
   const cityRoutes: MetadataRoute.Sitemap = CITY_TARGETS.map((city) => ({

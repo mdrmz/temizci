@@ -15,14 +15,34 @@ function xmlEscape(string $value): string
     return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
 }
 
+function geoSlug(string $value): string
+{
+    $map = [
+        'ç' => 'c', 'Ç' => 'c',
+        'ğ' => 'g', 'Ğ' => 'g',
+        'ı' => 'i', 'İ' => 'i',
+        'ö' => 'o', 'Ö' => 'o',
+        'ş' => 's', 'Ş' => 's',
+        'ü' => 'u', 'Ü' => 'u',
+    ];
+    $slug = strtolower(strtr(trim($value), $map));
+    $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug) ?? '';
+    $slug = preg_replace('/\s+/', '-', $slug) ?? '';
+    $slug = preg_replace('/-+/', '-', $slug) ?? '';
+    return trim($slug, '-');
+}
+
 $staticUrls = [
     ['loc' => $baseUrl . '/', 'lastmod' => $today, 'changefreq' => 'daily', 'priority' => '1.0'],
+    ['loc' => $baseUrl . '/listings', 'lastmod' => $today, 'changefreq' => 'hourly', 'priority' => '0.9'],
     ['loc' => $baseUrl . '/listings/browse', 'lastmod' => $today, 'changefreq' => 'hourly', 'priority' => '0.9'],
     ['loc' => $baseUrl . '/quick-request', 'lastmod' => $today, 'changefreq' => 'daily', 'priority' => '0.9'],
     ['loc' => $baseUrl . '/nasil-calisir', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.8'],
+    ['loc' => $baseUrl . '/reklam-ver', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.55'],
+    ['loc' => $baseUrl . '/destek', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.45'],
+    ['loc' => $baseUrl . '/satici', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.45'],
     ['loc' => $baseUrl . '/register', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.7'],
     ['loc' => $baseUrl . '/login', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.5'],
-    ['loc' => $baseUrl . '/privacy-policy', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
     ['loc' => $baseUrl . '/privacy', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
     ['loc' => $baseUrl . '/gizlilik-politikasi', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
     ['loc' => $baseUrl . '/kvkk', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.4'],
@@ -45,6 +65,15 @@ foreach (getCategories() as $cat) {
 
 $cityUrls = [];
 foreach (getCities() as $city) {
+    $slug = geoSlug((string) $city);
+    if ($slug !== '') {
+        $cityUrls[] = [
+            'loc' => $baseUrl . '/hizmet/' . rawurlencode($slug),
+            'lastmod' => $today,
+            'changefreq' => 'daily',
+            'priority' => '0.78',
+        ];
+    }
     $cityUrls[] = [
         'loc' => $baseUrl . '/listings/browse?city=' . rawurlencode((string) $city),
         'lastmod' => $today,
@@ -63,6 +92,15 @@ foreach (getQuickServiceOptions() as $opt) {
     }
 }
 foreach ($topCities as $cityName) {
+    $slug = geoSlug($cityName);
+    if ($slug !== '') {
+        $landingUrls[] = [
+            'loc' => $baseUrl . '/hizmet/' . rawurlencode($slug),
+            'lastmod' => $today,
+            'changefreq' => 'daily',
+            'priority' => '0.78',
+        ];
+    }
     foreach ($serviceSlugs as $slug) {
         $landingUrls[] = [
             'loc' => $baseUrl . '/hizmet?city=' . rawurlencode($cityName) . '&service=' . rawurlencode($slug),
@@ -77,11 +115,13 @@ $listingUrls = [];
 $workerUrls = [];
 try {
     $db = getDB();
+    expireStaleListings($db);
 
     $listingStmt = $db->query("
         SELECT id, created_at AS lastmod
         FROM listings
         WHERE status IN ('open', 'in_progress')
+          AND (expires_at IS NULL OR expires_at > NOW() OR status = 'in_progress')
         ORDER BY created_at DESC
         LIMIT 3000
     ");
